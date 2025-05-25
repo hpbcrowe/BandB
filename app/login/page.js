@@ -1,14 +1,18 @@
 "use client";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { Button } from "bootstrap";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +30,8 @@ export default function Login() {
         setLoading(false);
       } else {
         toast.success("logged in successfully");
-        router.push("/");
+        //router.push("/");
+        router.push(callbackUrl);
       }
     } catch (err) {
       console.log(err);
@@ -37,7 +42,7 @@ export default function Login() {
     <main>
       <div className="container">
         <div className="row d-flex justify-content-center align-items-center vh-100">
-          <div className="col-lg-5 shadow bg-light pd-5">
+          <div className="col-lg-5 shadow bg-light pd-5 text-center">
             <h2 className="mb-4 text-center">Login</h2>
             <form onSubmit={handleSubmit} className="text-center">
               <input
@@ -58,9 +63,15 @@ export default function Login() {
                 className="btn btn-primary btn-raised"
                 disabled={loading || !email || !password}
               >
-                {loading ? "Please Wait.." : "Submit"}
+                {loading ? "Please Wait.." : "Login"}
               </button>
             </form>
+            <button
+              className="btn btn-danger btn-raised mb-4"
+              onClick={() => signIn("google", { callbackUrl })}
+            >
+              Sign In with Google
+            </button>
           </div>
         </div>
       </div>
