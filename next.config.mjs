@@ -7,7 +7,6 @@ import {
 } from "./config.js";
 import { config } from "./middleware.js";
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
     DB_URI: DB_URI,
