@@ -1,7 +1,7 @@
 //export { default } from "next-auth/middleware";
 
 import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 export const config = {
   matcher: ["/dashboard/:path*", "/api/user/:path*", "/api/adminr/:path*"],
 };
