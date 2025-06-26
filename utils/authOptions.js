@@ -2,13 +2,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import User from "@/models/user";
 import bcrypt from "bcrypt";
-import dbConnect from "./dbConnect";
+import dbConnect from "@/utils/dbConnect";
 import { signIn } from "next-auth/react";
-import {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  NEXTAUTH_SECRET,
-} from "@/config";
 
 export const authOptions = {
   session: {
@@ -16,8 +11,8 @@ export const authOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
       async authorize(credentials, req) {
@@ -28,6 +23,8 @@ export const authOptions = {
         if (!user) {
           throw new Error("Invalid email or password");
         }
+        // Check if the user has a password set
+        // If the user does not have a password, they cannot log in with credentials
         const isPasswordMatched = await bcrypt.compare(password, user.password);
 
         if (!isPasswordMatched) {
@@ -63,7 +60,7 @@ export const authOptions = {
       return session;
     },
   },
-  secret: NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
   },
