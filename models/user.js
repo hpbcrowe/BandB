@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import mongooseUniqueValidator from "mongoose-unique-validator";
+import uniqueValidator from "mongoose-unique-validator";
 //import { unique } from "next/dist/build/utils";
 
 const userSchema = new mongoose.Schema(
@@ -24,21 +24,21 @@ const userSchema = new mongoose.Schema(
     password: String,
     role: {
       type: String,
-      default: "user",
+      default: "user", //admin or user
     },
     image: String,
     resetCode: {
       data: String,
       expiresAt: {
         type: Date,
-        default: () => new Date(Date.now() + 10 * 60 * 1000),
+        default: () => new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
       },
     },
   },
   { timestamps: true }
 );
 
-userSchema.plugin(mongooseUniqueValidator);
+userSchema.plugin(uniqueValidator);
 
 //export the model if it exists, create it if it doesn't
 export default mongoose.models.User || mongoose.model("User", userSchema);

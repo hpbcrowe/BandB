@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
+//export const dynamic = "force-dynamic";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Button } from "bootstrap";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,7 +34,7 @@ export default function Login() {
         router.push(callbackUrl);
       }
     } catch (err) {
-      console.log(err);
+      console.log("this is the loading error " + err);
       setLoading(false);
     }
   };
