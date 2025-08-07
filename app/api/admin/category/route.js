@@ -15,8 +15,8 @@ export async function POST(req) {
     });
     return NextResponse.json(category, { status: 201 });
   } catch (err) {
-    console.error("Error creating category:", error);
-    return NextResponse.json(error.message, { status: 500 });
+    console.error("Error creating category:", err);
+    return NextResponse.json(err.message, { status: 500 });
   }
 }
 
@@ -26,6 +26,6 @@ export async function GET() {
     const categories = await Category.find({}).sort({ createdAt: -1 });
     return NextResponse.json(categories, { status: 200 });
   } catch (err) {
-    return NextResponse.json(error.message, { status: 500 });
+    return NextResponse.json(err.message, { status: 500 });
   }
 }
