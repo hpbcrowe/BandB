@@ -17,15 +17,15 @@ const tagSchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
-    parent: {
+    parentCategory: {
       type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: true,
+      ref: "Category",
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
 tagSchema.plugin(uniqueValidator, " is already taken.");
 
-export default mongoose.models.Tag ||
-  mongoose.model("Tag", tagSchema);
+export default mongoose.models.Tag || mongoose.model("Tag", tagSchema);
