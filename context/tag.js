@@ -19,7 +19,7 @@ export const TagProvider = ({ children }) => {
    */
   const createTag = async () => {
     try {
-      const response = await fetch(`${process.env.API}/apiadmin/tag`, {
+      const response = await fetch(`${process.env.API}/admin/tag`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const TagProvider = ({ children }) => {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch(`${process.env.API}/apiadmin/tag`, {
+      const response = await fetch(`${process.env.API}/admin/tag`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ export const TagProvider = ({ children }) => {
   const updateTag = async () => {
     try {
       const response = await fetch(
-        `${process.env.API}/apiadmin/tag/${updatingTag?._id}`,
+        `${process.env.API}/admin/tag/${updatingTag?._id}`,
         {
           method: "PUT",
           headers: {
@@ -103,7 +103,7 @@ export const TagProvider = ({ children }) => {
   const deleteTag = async () => {
     try {
       const reponse = await fetch(
-        `${process.env.API}/apiadmin/tag/${updatingTag._id}`,
+        `${process.env.API}/admin/tag/${updatingTag._id}`,
         {
           method: "DELETE",
           headers: {

@@ -10,7 +10,11 @@ export default function CategoryList() {
   return (
     <div className="my-5">
       {categories?.map((c) => (
-        <button className="btn" onClick={() => setUpdatingCategory(c)}>
+        <button
+          className="btn"
+          key={c._id}
+          onClick={(c) => setUpdatingCategory(c)}
+        >
           {c.name}
         </button>
       ))}
