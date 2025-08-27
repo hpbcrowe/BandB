@@ -38,14 +38,13 @@ export default function TagCreate() {
           name="category"
           className="form-control"
           onChange={(e) => setParentCategory(e.target.value)}
+          value={
+            updatingTag ? updatingTag?.parentCategory?._id : parentCategory
+          }
         >
           <option>Select a category</option>
           {categories?.map((c) => (
-            <option
-              key={c._id}
-              value={c._id}
-              //selected={updatingTag ? updatingTag?.parentCategory?._id === c._id : parentCategory === c._id}
-            >
+            <option key={c._id} value={c._id}>
               {c.name}
             </option>
           ))}
