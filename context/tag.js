@@ -24,7 +24,7 @@ export const TagProvider = ({ children }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, parent: parentCategory }),
+        body: JSON.stringify({ name, parentCategory }),
       });
       // Check if the response is ok (status in the range 200-299)
       const data = await response.json();
@@ -103,7 +103,7 @@ export const TagProvider = ({ children }) => {
   const deleteTag = async () => {
     try {
       const reponse = await fetch(
-        `${process.env.API}/admin/tag/${updatingTag._id}`,
+        `${process.env.API}/admin/tag/${updatingTag?._id}`,
         {
           method: "DELETE",
           headers: {

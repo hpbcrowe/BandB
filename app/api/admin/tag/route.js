@@ -19,6 +19,8 @@ export async function POST(req) {
   const body = await req.json();
   // Destructure the name and parent from the body
   // Assuming the body contains { name: string, parent: string }
+  // console.log("****body =>", body);
+
   const { name, parentCategory } = body;
 
   try {
