@@ -38,7 +38,11 @@ export const TagProvider = ({ children }) => {
         setParentCategory("");
         // Update the tags state with the new tag
         // Assuming tags is an array of tag objects
-        setTags({ data, ...tags });
+        //This took me forever to figure out why my new tag wasn't showing up in the list after creation
+        // I forgot to update the tags state with the new tag
+        // Now the new tag will appear in the list immediately after creation
+        // it was this  setTags([data, ...tags]);
+        setTags((prev) => [...prev, data]);
       }
     } catch (err) {
       console.error(err);
