@@ -22,6 +22,10 @@ export default function ProductCreate() {
   const { categories, fetchCategories } = useCategory();
   const { tags, fetchTags } = useTag();
 
+  const imagePreviews = updatingProduct
+    ? updatingProduct?.images ?? []
+    : product?.images ?? [];
+
   useEffect(() => {
     fetchCategories();
     fetchTags();
@@ -205,6 +209,41 @@ export default function ProductCreate() {
             </div>
           ))}
       </div>
+      <div className="form-group mb-3">
+        <label
+          className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}'}
+            `}
+        >
+          {uploading ? "Processing" : "Upload Images"}
+          <input
+            type="file"
+            multiple
+            hidden
+            accept="images/*"
+            onChange={uploadImages}
+            disabled={uploading}
+          />
+        </label>
+      </div>
+      <div className="d-flex justify-content-center">
+        {imagePreviews?.map((img) => (
+          <div key={img?.public_id}>
+            <img
+              src={img?.secure_url}
+              className="img rounded-circle mx-1 shadow"
+              style={{ width: "100px", height: "100px", objectFit: "cover" }}
+            />
+            <br />{" "}
+            <div
+              className="text-center pointer"
+              onClick={() => deleteImage(img?.public_id)}
+            >
+              ❌
+            </div>
+          </div>
+        ))}
+      </div>
+
       <pre>{JSON.stringify(product, null, 4)}</pre>
     </div>
   );
