@@ -10,7 +10,20 @@ export const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
   //state
-  const [product, setProduct] = useState(null);
+  // initialize product with empty fields so inputs stay controlled
+  const initialProduct = {
+    title: "",
+    description: "",
+    price: "",
+    color: "",
+    brand: "",
+    stock: "",
+    category: { _id: "" },
+    tags: [],
+    images: [],
+  };
+
+  const [product, setProduct] = useState(initialProduct);
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,24 +49,24 @@ export const ProductProvider = ({ children }) => {
 
   const uploadImages = (e) => {
     const files = e.target.files;
+
     let allUploadedFiles = updatingProduct
       ? updatingProduct?.images || []
       : product
       ? product?.images || []
       : [];
+
     if (files) {
-      // check if total files + existing images > 4
+      // check if the total combined images exceed 4
       const totalImages = allUploadedFiles?.length + files?.length;
       if (totalImages > 4) {
-        toast.error("You can only upload up to 4 images.");
+        toast.error("You can upload maximum 4 images");
         return;
       }
 
       setUploading(true);
-      // loop through files and resize and upload each
-      // use Promise.all to wait for all uploads to finish
-
       const uploadPromises = [];
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
@@ -85,23 +98,23 @@ export const ProductProvider = ({ children }) => {
         });
         uploadPromises.push(promise);
       }
-      // wait for all uploads to finish
-      // then update state
 
       Promise.all(uploadPromises)
         .then(() => {
           updatingProduct
-            ? setUpdatingProduct({ ...updateProduct, images: allUploadedFiles })
+            ? setUpdatingProduct({
+                ...updatingProduct,
+                images: allUploadedFiles,
+              })
             : setProduct({ ...product, images: allUploadedFiles });
           setUploading(false);
         })
         .catch((err) => {
-          console.log("Error uploading images: ", err);
+          console.log("image upload err => ", err);
           setUploading(false);
         });
     }
   };
-
   /**
    * DELETE IMAGE
    * @param {*} public_id
@@ -111,7 +124,7 @@ export const ProductProvider = ({ children }) => {
    *
    */
   const deleteImage = (public_id) => {
-    // console.log("delete image => ", public_id);
+    // console.log("delete image beginning of method => ", public_id);
 
     setUploading(true);
     // send request to server to delete
@@ -121,7 +134,6 @@ export const ProductProvider = ({ children }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        // console.log("image deleted => ", data);
         const filteredImages = updatingProduct
           ? updatingProduct?.images?.filter(
               (image) => image?.public_id !== public_id
@@ -130,10 +142,10 @@ export const ProductProvider = ({ children }) => {
 
         updatingProduct
           ? setUpdatingProduct({ ...updatingProduct, images: filteredImages })
-          : setProduct({ ...product, images: filteredIMages });
+          : setProduct({ ...product, images: filteredImages });
       })
       .catch((err) => {
-        console.log("Image delete err => ", err);
+        console.log("Image delete err after filtering => ", err);
       })
       .finally(() => setUploading(false));
   };
@@ -149,23 +161,28 @@ export const ProductProvider = ({ children }) => {
    */
 
   const createProduct = async () => {
+    console.log("create product called with product => ", product);
+    console.log("API endpoint used => ", `${process.env.API}/admin/product`);
     try {
       const response = await fetch(`${process.env.API}/admin/product`, {
         method: "POST",
         body: JSON.stringify({ product }),
       });
+      console.log("response from create product => ", response);
       const data = await response.json();
       if (!response.ok) {
         toast.error(data.err || "Failed to create product");
       } else {
         toast.success(`Product "${data?.title}" created successfully`);
-        setProduct(null);
+        // reset to initial product so inputs remain controlled
+        setProduct(initialProduct);
         // Redirect to products list page
-        router.push("/dashboard/admin/products");
+        //router.push("/dashboard/admin/product");
+        window.location.reload();
       }
     } catch (err) {
       console.error(err);
-      toast.error("Error creating product");
+      toast.error("Error creating product in context product.js");
     }
   };
 

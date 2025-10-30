@@ -127,8 +127,8 @@ export default function ProductCreate() {
             const categoryId = e.target.value;
             const categoryName =
               e.target.options[e.target.selectedIndex].getAttribute("name");
-            console.log("category name => ", categoryName);
-            console.log("category id => ", categoryId);
+            // console.log("category name => ", categoryName);
+            // console.log("category id => ", categoryId);
             // set category object
             // if no categoryId, set category to null
             // else set category to {_id, name}
@@ -230,10 +230,10 @@ export default function ProductCreate() {
           <div key={img?.public_id}>
             <img
               src={img?.secure_url}
-              className="img rounded-circle mx-1 shadow"
+              className="img-thumbnail  mx-1 shadow"
               style={{ width: "100px", height: "100px", objectFit: "cover" }}
             />
-            <br />{" "}
+            <br />
             <div
               className="text-center pointer"
               onClick={() => deleteImage(img?.public_id)}
@@ -242,6 +242,31 @@ export default function ProductCreate() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="d-flex justify-content-between mt-3">
+        <button
+          className={`btn btn-raised btn-${
+            updatingProduct ? "info" : "primary"
+          }`}
+          onClick={() => (updatingProduct ? updateProduct() : createProduct())}
+        >
+          {updatingProduct ? "Update" : "Create"}
+        </button>
+        {updatingProduct && (
+          <>
+            <button onClick={() => deleteProduct()} className="btn btn-danger">
+              {" "}
+              Delete{" "}
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn btn-danger"
+            >
+              {" "}
+              Clear{" "}
+            </button>
+          </>
+        )}{" "}
       </div>
 
       <pre>{JSON.stringify(product, null, 4)}</pre>

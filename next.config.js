@@ -10,6 +10,9 @@
 const config = require("./config.js");
 
 const nextConfig = {
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+  },
   env: {
     DB_URI: config.DB_URI,
     API: config.API,
