@@ -219,7 +219,8 @@ export const ProductProvider = ({ children }) => {
         toast.error(data?.err || "Failed to update product");
       } else {
         toast.success(`Product "${data?.title}" updated successfully`);
-        router.back();
+        // router.back();
+        window.location.href = "/dashboard/admin/products";
       }
     } catch (err) {
       console.error(err);
@@ -240,7 +241,8 @@ export const ProductProvider = ({ children }) => {
         toast.error(data?.err || "Failed to delete product");
       } else {
         toast.success(`Product "${data?.title}" deleted successfully`);
-        router.back();
+        //router.back();
+        window.location.reload();
       }
     } catch (err) {
       console.error(err);

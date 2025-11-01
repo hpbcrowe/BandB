@@ -2,8 +2,8 @@
 import { useEffect } from "react";
 import { useProduct } from "@/context/product";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image"; // Import the Image component from Next.js
+import Link from "next/link";
 
 export default function ProductList() {
   const {
@@ -23,6 +23,11 @@ export default function ProductList() {
     fetchProducts(page);
   }, [page]);
 
+  const handleClick = (product) => {
+    setUpdatingProduct(product);
+    router.push("/dashboard/admin/product");
+  };
+
   return (
     <div className="container my-5">
       <div className="row gx-3">
@@ -39,10 +44,11 @@ export default function ProductList() {
               />
             </div>
             <div className="card-body">
-              <h5 className="card-title">
-                <Link href={`/product/${product?.slug}`}>
-                  ${product?.price?.toFixed(2)} {product?.title}
-                </Link>
+              <h5
+                className="card-title pointer"
+                onClick={() => handleClick(product)}
+              >
+                ${product?.price?.toFixed(2)} {product?.title}
               </h5>
               <p className="card-text">
                 <div
@@ -57,6 +63,33 @@ export default function ProductList() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="row">
+        <div className="col text-center">
+          <nav className="d-flex justify-content-center">
+            <ul className="pagination">
+              {Array.from({ length: totalPages }, (_, index) => {
+                const page = index + 1;
+                return (
+                  <li
+                    key={page}
+                    className={`page-item ${
+                      currentPage === page ? "active" : ""
+                    }`}
+                  >
+                    <Link
+                      className="page-link"
+                      href={`${pathname}?page=${page}`}
+                      as={`${pathname}?page=${page}`}
+                    >
+                      {page}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
       </div>
     </div>
   );

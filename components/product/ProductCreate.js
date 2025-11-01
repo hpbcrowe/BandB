@@ -46,7 +46,6 @@ export default function ProductCreate() {
         }
         className="form-control p-2 my-2"
       />
-
       <textarea
         rows="5"
         className="form-control p-2 mb-2"
@@ -63,7 +62,6 @@ export default function ProductCreate() {
             : setProduct({ ...product, description: e.target.value })
         }
       ></textarea>
-
       <input
         type="number"
         placeholder="Price"
@@ -254,13 +252,16 @@ export default function ProductCreate() {
         </button>
         {updatingProduct && (
           <>
-            <button onClick={() => deleteProduct()} className="btn btn-danger">
+            <button
+              onClick={() => deleteProduct()}
+              className="btn btn-danger btn-raised"
+            >
               {" "}
               Delete{" "}
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="btn btn-danger"
+              className="btn btn-warning btn-raised"
             >
               {" "}
               Clear{" "}
@@ -268,8 +269,7 @@ export default function ProductCreate() {
           </>
         )}{" "}
       </div>
-
-      <pre>{JSON.stringify(product, null, 4)}</pre>
+      {/* <pre>{JSON.stringify(product, null, 4)}</pre>*/}
     </div>
   );
 }
