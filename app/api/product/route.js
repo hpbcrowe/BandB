@@ -4,7 +4,7 @@ import Product from "@/models/product";
 import queryString from "query-string";
 
 /**
- *
+ *  // Get a paginated list of products
  * @param {*} req
  * @returns
  * Get a paginated list of products

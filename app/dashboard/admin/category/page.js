@@ -1,6 +1,12 @@
 import CategoryCreate from "@/components/category/CategoryCreate";
 import CategoryList from "@/components/category/CategoryList";
 
+/**
+ *  Admin Category Page
+ * @returns
+ * Renders the admin category management page, including components for creating and listing categories.
+ *
+ */
 export default function AdminCategory() {
   return (
     <div className="container mb-5">

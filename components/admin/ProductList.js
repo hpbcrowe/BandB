@@ -3,7 +3,8 @@ import { useEffect } from "react";
 import { useProduct } from "@/context/product";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image"; // Import the Image component from Next.js
-import Link from "next/link";
+
+import Pagination from "@/components/product/pagination";
 
 export default function ProductList() {
   const {
@@ -19,10 +20,26 @@ export default function ProductList() {
   const searchParams = useSearchParams();
   const page = searchParams.get("page") || 1;
 
+  /**
+   * Fetch Products on Page Change
+   *    * @returns
+   * Fetches the list of products whenever the page number changes.
+   * Updates the products, currentPage, and totalPages state in the ProductContext.
+   *
+   *
+   */
+
   useEffect(() => {
     fetchProducts(page);
   }, [page]);
 
+  /**
+   * Handle Click to Update Product
+   * @param {} product
+   * @returns
+   * Sets the selected product for updating and navigates to the product update page.
+   *
+   */
   const handleClick = (product) => {
     setUpdatingProduct(product);
     router.push("/dashboard/admin/product");
@@ -64,33 +81,11 @@ export default function ProductList() {
           </div>
         ))}
       </div>
-      <div className="row">
-        <div className="col text-center">
-          <nav className="d-flex justify-content-center">
-            <ul className="pagination">
-              {Array.from({ length: totalPages }, (_, index) => {
-                const page = index + 1;
-                return (
-                  <li
-                    key={page}
-                    className={`page-item ${
-                      currentPage === page ? "active" : ""
-                    }`}
-                  >
-                    <Link
-                      className="page-link"
-                      href={`${pathname}?page=${page}`}
-                      as={`${pathname}?page=${page}`}
-                    >
-                      {page}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pathname={pathname}
+      />
     </div>
   );
 }

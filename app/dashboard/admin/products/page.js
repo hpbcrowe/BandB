@@ -1,6 +1,13 @@
 "use client";
 import ProductList from "@/components/admin/ProductList";
 
+/**
+ *  Admin Products List Page
+ * @returns
+ * Renders the admin page for listing products, including the ProductList component.
+ *
+ *
+ */
 export default function AdminProductsList() {
   return (
     <div className="container">

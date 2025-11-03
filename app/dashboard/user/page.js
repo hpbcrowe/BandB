@@ -1,3 +1,10 @@
+/**
+ *  User Dashboard Page
+ * @returns
+ * Renders the user dashboard page.
+ *
+ */
+
 export default function UserDashboard() {
   return (
     <div className="container">

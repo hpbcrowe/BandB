@@ -205,6 +205,16 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  /**
+   *  UPDATE PRODUCT
+   * @param {*} productId
+   * @returns
+   * Updates an existing product by sending a PUT request to the server.
+   * Displays success or error toast messages based on the response.
+   * Redirects to the products list page upon success.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
   const updateProduct = async (productId) => {
     try {
       const response = await fetch(
@@ -228,6 +238,15 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  /**
+   * DELETE PRODUCT
+   * @return
+   * Deletes an existing product by sending a DELETE request to the server.
+   * Displays success or error toast messages based on the response.
+   * Reloads the page upon successful deletion.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
   const deleteProduct = async () => {
     try {
       const response = await fetch(

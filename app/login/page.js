@@ -14,6 +14,15 @@ export default function Login() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+  /**
+   *  HANDLE SUBMIT
+   * @param {*} e
+   * @returns
+   * Handles the login form submission by authenticating the user with NextAuth.
+   * Displays success or error messages using toast notifications.
+   * Redirects the user to the specified callback URL upon successful login.
+   *
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
