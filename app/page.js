@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Pagination from "@/components/product/pagination";
+import Pagination from "@/components/product/Pagination";
 import ProductCard from "@/components/product/ProductCard";
 
 async function getProducts(searchParams) {

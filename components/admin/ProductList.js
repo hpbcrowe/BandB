@@ -4,7 +4,7 @@ import { useProduct } from "@/context/product";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image"; // Import the Image component from Next.js
 
-import Pagination from "@/components/product/pagination";
+import Pagination from "@/components/product/Pagination";
 
 export default function ProductList() {
   const {
