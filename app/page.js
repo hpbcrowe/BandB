@@ -23,13 +23,15 @@ export default async function Home({ searchParams }) {
   const { products, currentPage, totalPages } = await getProducts(searchParams);
   console.log("data in home page => ", { products, currentPage, totalPages });
   return (
-    <div>
-      <h1 className="text-center">
+    <div className="container">
+      <h1 className="text-center mt-2">
         <strong>Latest Products</strong>
       </h1>
       <div className="row">
         {products?.map((product) => (
-          <ProductCard product={product} />
+          <div className="col-lg-4">
+            <ProductCard product={product} />
+          </div>
         ))}
       </div>
       <Pagination
