@@ -16,8 +16,8 @@ export default function TagList() {
     <>
       <h4>{console.log(tags)}</h4>
       {Array.isArray(tags) &&
-        tags?.map((t, index) => (
-          <button className="btn" key={index} onClick={() => setUpdatingTag(t)}>
+        tags?.map((t) => (
+          <button className="btn" key={t._id} onClick={() => setUpdatingTag(t)}>
             {t.name}
           </button>
         ))}

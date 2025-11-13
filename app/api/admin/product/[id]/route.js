@@ -18,8 +18,9 @@ export async function PUT(req, context) {
   const body = await req.json();
 
   try {
+    const params = await context.params;
     const updatedProduct = await Product.findByIdAndUpdate(
-      context.params.id,
+      params.id,
       body,
       { ...body },
       { new: true }
@@ -43,7 +44,8 @@ export async function DELETE(req, context) {
   await dbConnect();
 
   try {
-    const deletedProduct = await Product.findByIdAndDelete(context.params.id);
+    const params = await context.params;
+    const deletedProduct = await Product.findByIdAndDelete(params.id);
     return NextResponse.json(deletedProduct, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });

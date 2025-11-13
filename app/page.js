@@ -3,8 +3,10 @@ import Pagination from "@/components/product/Pagination";
 import ProductCard from "@/components/product/ProductCard";
 
 async function getProducts(searchParams) {
+  // `searchParams` can be a thenable in some Next.js runtimes — await it first
+  const params = (await searchParams) || {};
   const searchQuery = new URLSearchParams({
-    page: searchParams?.page || 1,
+    page: params?.page || 1,
   }).toString();
   const response = await fetch(`${process.env.API}/product?${searchQuery}`, {
     method: "GET",
@@ -29,7 +31,7 @@ export default async function Home({ searchParams }) {
       </h1>
       <div className="row">
         {products?.map((product) => (
-          <div className="col-lg-4">
+          <div key={product?._id} className="col-lg-4">
             <ProductCard product={product} />
           </div>
         ))}

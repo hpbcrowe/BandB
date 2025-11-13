@@ -8,8 +8,9 @@ export async function PUT(req, context) {
   const body = await req.json();
   const { name } = body;
   try {
+    const params = await context.params;
     const updatingCategory = await Category.findByIdAndUpdate(
-      context.params.id,
+      params.id,
       {
         ...body,
         slug: slugify(name),
@@ -25,9 +26,8 @@ export async function PUT(req, context) {
 export async function DELETE(req, context) {
   await dbConnect();
   try {
-    const deletingCategory = await Category.findByIdAndDelete(
-      context.params.id
-    );
+    const params = await context.params;
+    const deletingCategory = await Category.findByIdAndDelete(params.id);
     return NextResponse.json(deletingCategory, { status: 200 });
   } catch (err) {
     return NextResponse.json(error.message, { status: 500 });

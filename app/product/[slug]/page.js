@@ -1,3 +1,9 @@
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import ProductImage from "@/components/product/ProductImage";
+
+dayjs.extend(relativeTime);
+
 async function getProduct(slug) {
   const response = await fetch(`${process.env.API}/product/${slug}`, {
     method: "GET",
@@ -11,15 +17,46 @@ async function getProduct(slug) {
 }
 
 export default async function ProductViewPage({ params }) {
-  const product = await getProduct(params?.slug);
+  // `params` can be a thenable in some Next.js runtimes — await it first
+  const resolvedParams = (await params) || {};
+  const product = await getProduct(resolvedParams?.slug);
   console.log("product data in product view page => ", product);
   return (
     <div className="container my-4">
       <div className="row">
-        <div className="col-lg-8 offset-lg-2">
-          <h1 className="text-center">
-            Product View Page - {JSON.stringify(product, null)}
-          </h1>
+        <div className="col-lg-8 offset-lg-2 card py-5">
+          <h1 className="text-center">{product?.title}</h1>
+          {/*Show product Image in modal */}
+          <ProductImage product={product} />
+          <div className="card-body">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: product?.description,
+              }}
+            />
+          </div>
+          {/* Before accessing category and tags, make suer .populate() is used 
+      in api routes and ref: "Category" models are imported in product model */}
+          <div
+            key={product?._id}
+            className="card-footer d-flex justify-content-between"
+          >
+            <small>Category: {product?.category?.name}</small>
+            <small>Tags: {product?.tags?.map((t) => t?.name).join(" ")}</small>
+          </div>
+          <div className="card-footer d-flex justify-content-between">
+            <small> ❤️Likes</small>
+            <small>Posted {dayjs(product?.createdAt).fromNow()}</small>
+          </div>
+          <div className="card-footer d-flex justify-content-between">
+            <small>Brand:{product?.brand}</small>
+            <small>🌟Stars</small>
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <h4 className="text-center my-5">Related Products</h4>
         </div>
       </div>
     </div>

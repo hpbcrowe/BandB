@@ -7,7 +7,7 @@ dayjs.extend(relativeTime);
 
 export default function ({ product }) {
   return (
-    <div key={product?._id} className="card my-3">
+    <div className="card my-3">
       <div style={{ height: "200px", overflow: "hidden" }}>
         <Image
           src={product?.images?.[0].secure_url || "/images/default.jpeg"}
@@ -19,9 +19,7 @@ export default function ({ product }) {
       </div>
       <div className="card-body">
         <Link href={`/product/${product?.slug}`}>
-          <h5 key={product?._id} className="card-title">
-            {product?.title}
-          </h5>
+          <h5 className="card-title">{product?.title}</h5>
         </Link>
         <div
           dangerouslySetInnerHTML={{
@@ -34,10 +32,7 @@ export default function ({ product }) {
       </div>
       {/* Before accessing category and tags, make suer .populate() is used 
       in api routes and ref: "Category" models are imported in product model */}
-      <div
-        key={product?._id}
-        className="card-footer d-flex justify-content-between"
-      >
+      <div className="card-footer d-flex justify-content-between">
         <small>Category: {product?.category?.name}</small>
         <small>Tags: {product?.tags?.map((t) => t?.name).join(" ")}</small>
       </div>

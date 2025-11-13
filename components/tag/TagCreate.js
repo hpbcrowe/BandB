@@ -45,22 +45,12 @@ export default function TagCreate() {
                 })
               : setParentCategory(e.target.value)
           }
-          value={
-            updatingTag ? updatingTag?.parentCategory?._id : parentCategory
-          }
+          // Treat parentCategory as the category _id string for controlled select
+          value={updatingTag ? updatingTag?.parentCategory : parentCategory}
         >
           <option value="">Select a category</option>
-          {console.log("parent category => ", parentCategory)}
-          {console.log("updating tag****  ", updatingTag)}
           {categories?.map((c) => (
-            <option
-              key={c._id}
-              value={c._id}
-              selected={
-                c?._id === updatingTag?.parentCategory ||
-                c?._id === parentCategory
-              }
-            >
+            <option key={c._id} value={c._id}>
               {c.name}
             </option>
           ))}

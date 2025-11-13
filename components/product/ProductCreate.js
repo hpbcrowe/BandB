@@ -149,9 +149,7 @@ export default function ProductCreate() {
           }
         >
           <option value="">Please Select Category</option>
-          // Map through categories to create options // Each option's value is
-          the category's _id and name attribute is the category's name // This
-          allows us to easily access both _id and name when setting the category
+          {/* Map through categories to create options. Each option's value is the category's _id. */}
           {categories?.map((c) => (
             <option key={c._id} value={c._id} name={c?.name}>
               {c.name}
@@ -208,10 +206,7 @@ export default function ProductCreate() {
           ))}
       </div>
       <div className="form-group mb-3">
-        <label
-          className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}'}
-            `}
-        >
+        <label className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}`}>
           {uploading ? "Processing" : "Upload Images"}
           <input
             type="file"

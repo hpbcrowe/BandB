@@ -17,9 +17,24 @@ export async function GET(req, context) {
   await dbConnect();
 
   try {
-    const product = await Product.findOne({ slug: context.params.slug });
+    // `context.params` can be a thenable in some Next.js runtimes — await it
+    const params = await context.params;
+    const slug = params?.slug;
+    if (!slug) {
+      return NextResponse.json({ error: "Missing slug parameter" }, { status: 400 });
+    }
+
+    const product = await Product.findOne({ slug })
+      .populate("category", "name slug")
+      .populate("tags", "name slug");
+
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
     return NextResponse.json(product, { status: 200 });
   } catch (err) {
+    console.error("Error in GET /api/product/[slug] =>", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
