@@ -29,8 +29,46 @@ export const ProductProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [updatingProduct, setUpdatingProduct] = useState(null);
   const [uploading, setUploading] = useState(false);
+  //Image Preview Modal
+  const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
+  const [currentImagePreviewUrl, setCurrentImagePreviewUrl] = useState("");
+  //rating system
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [currentRatingProduct, setCurrentRatingProduct] = useState(0);
+  const [comment, setComment] = useState("");
+
   //hook
   const router = useRouter();
+
+  useEffect(() => {
+    //close modal on clicks on the page outside the modal
+    window.addEventListener("click", handleClickOutside);
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+    function handleClickOutside(event) {
+      if (event.target.classList.contains("modal")) {
+        closeModal();
+      }
+    }
+  }, []);
+
+  {
+    /* Modal for image preview */
+  }
+  const openModal = (url) => {
+    setCurrentImagePreviewUrl(url);
+    setShowImagePreviewModal(true);
+  };
+
+  {
+    /* Close modal function */
+  }
+  const closeModal = () => {
+    setCurrentImagePreviewUrl("");
+    setShowImagePreviewModal(false);
+  };
+
   // functions
   // resize image
 
@@ -289,6 +327,20 @@ export const ProductProvider = ({ children }) => {
         fetchProducts,
         updateProduct,
         deleteProduct,
+        //image preview modal
+        showImagePreviewModal,
+        setShowImagePreviewModal,
+        currentImagePreviewUrl,
+        setCurrentImagePreviewUrl,
+        openModal,
+        closeModal,
+        //rating system
+        showRatingModal,
+        setShowRatingModal,
+        currentRatingProduct,
+        setCurrentRatingProduct,
+        comment,
+        setComment,
       }}
     >
       {children}

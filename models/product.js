@@ -4,12 +4,12 @@ import Category from "@/models/category";
 import Tag from "@/models/tag";
 import User from "@/models/user";
 
-const likeSchema = new mongoose.Schema(
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  },
-  { timestamps: true }
-);
+// const likeSchema = new mongoose.Schema(
+//   {
+//     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+//   },
+//   { timestamps: true }
+// );
 
 const ratingSchema = new mongoose.Schema(
   {
@@ -99,7 +99,8 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    likes: [likeSchema],
+    // likes: [likeSchema],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     ratings: [ratingSchema],
   },
   { timestamps: true }

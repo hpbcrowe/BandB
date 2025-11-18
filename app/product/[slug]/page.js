@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ProductImage from "@/components/product/ProductImage";
+import ProductLike from "@/components/product/ProductLike";
 
 dayjs.extend(relativeTime);
 
@@ -31,7 +32,7 @@ export default async function ProductViewPage({ params }) {
           <div className="card-body">
             <div
               dangerouslySetInnerHTML={{
-                __html: product?.description,
+                __html: product?.description.replace(/\./g, ".<br/><br/>"),
               }}
             />
           </div>
@@ -45,7 +46,7 @@ export default async function ProductViewPage({ params }) {
             <small>Tags: {product?.tags?.map((t) => t?.name).join(" ")}</small>
           </div>
           <div className="card-footer d-flex justify-content-between">
-            <small> ❤️Likes</small>
+            <ProductLike product={product} />
             <small>Posted {dayjs(product?.createdAt).fromNow()}</small>
           </div>
           <div className="card-footer d-flex justify-content-between">

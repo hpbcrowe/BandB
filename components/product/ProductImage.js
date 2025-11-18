@@ -1,40 +1,16 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect, use } from "react";
+import { useProduct } from "@/context/product";
+import Modal from "@/components/Modal";
 
 export default function ProductImage({ product }) {
-  const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
-  const [currentImagePreviewUrl, setCurrentImagePreviewUrl] = useState("");
-
-  useEffect(() => {
-    //close modal on clicks on the page outside the modal
-    window.addEventListener("click", handleClickOutside);
-    return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-    function handleClickOutside(event) {
-      if (event.target.classList.contains("modal")) {
-        closeModal();
-      }
-    }
-  }, []);
-
-  {
-    /* Modal for image preview */
-  }
-  const openModal = (url) => {
-    setCurrentImagePreviewUrl(url);
-    setShowImagePreviewModal(true);
-  };
-
-  {
-    /* Close modal function */
-  }
-  const closeModal = () => {
-    setCurrentImagePreviewUrl("");
-    setShowImagePreviewModal(false);
-  };
-
+  // hook
+  const {
+    showImagePreviewModal,
+    currentImagePreviewUrl,
+    closeModal,
+    openModal,
+  } = useProduct();
   {
     /* Function to display image */
   }
@@ -51,31 +27,7 @@ export default function ProductImage({ product }) {
   return (
     <>
       {showImagePreviewModal && (
-        <div className="modal fade show" style={{ display: "block" }}>
-          <div
-            className="modal-dialog modal-lg modal-dialog-centered"
-            style={{ height: "calc(100% - 60px)" }}
-          >
-            <div
-              className="modal-content"
-              style={{ height: "calc(100% - 60px)" }}
-            >
-              <div className="modal-body overflow-auto">
-                {showImage(currentImagePreviewUrl, product?.title)}
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                  onClick={closeModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Modal>{showImage(currentImagePreviewUrl, product?.title)}</Modal>
       )}
       <div className="d-flex justify-content-center align-items-center">
         {product?.images?.length > 0 ? (

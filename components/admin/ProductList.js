@@ -67,7 +67,7 @@ export default function ProductList() {
               >
                 ${product?.price?.toFixed(2)} {product?.title}
               </h5>
-              <p className="card-text">
+              <div className="card-text">
                 <div
                   dangerouslySetInnerHTML={{
                     __html:
@@ -75,8 +75,8 @@ export default function ProductList() {
                         ? `${product?.description?.substring(0, 160)}...`
                         : product?.description,
                   }}
-                ></div>
-              </p>
+                />
+              </div>
             </div>
           </div>
         ))}
