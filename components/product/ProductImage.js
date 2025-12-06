@@ -9,7 +9,7 @@ export default function ProductImage({ product }) {
     showImagePreviewModal,
     currentImagePreviewUrl,
     closeModal,
-    openModal,
+    openImagePreviewModal,
   } = useProduct();
   {
     /* Function to display image */
@@ -37,7 +37,7 @@ export default function ProductImage({ product }) {
                 key={image.public_id}
                 style={{ height: "350px", overflow: "hidden" }}
                 className="pointer"
-                onClick={() => openModal(image?.secure_url)}
+                onClick={() => openImagePreviewModal(image?.secure_url)}
               >
                 {showImage(image?.secure_url, product?.title)}
               </div>
@@ -47,7 +47,7 @@ export default function ProductImage({ product }) {
           <div
             style={{ height: "350px", overflow: "hidden" }}
             className="pointer"
-            onClick={() => openModal("/images/default.jpeg")}
+            onClick={() => openImagePreviewModal("/images/default.jpeg")}
           >
             {showImage("/images/default.jpeg", product?.title)}
           </div>

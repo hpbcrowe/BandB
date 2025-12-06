@@ -21,12 +21,20 @@ export async function GET(req, context) {
     const params = await context.params;
     const slug = params?.slug;
     if (!slug) {
-      return NextResponse.json({ error: "Missing slug parameter" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing slug parameter" },
+        { status: 400 }
+      );
     }
 
+    // Find the product by slug
+    // Populate related fields as needed
+    // e.g., category, tags, ratings.postedBy
+    //  You can adjust the populate fields based on your schema
     const product = await Product.findOne({ slug })
       .populate("category", "name slug")
-      .populate("tags", "name slug");
+      .populate("tags", "name slug")
+      .populate({ path: "ratings.postedBy", model: "User", select: "name" });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });

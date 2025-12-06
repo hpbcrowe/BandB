@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ProductImage from "@/components/product/ProductImage";
 import ProductLike from "@/components/product/ProductLike";
+import ProductRating from "@/components/product/ProductRating";
+import Product from "@/models/product";
 
 dayjs.extend(relativeTime);
 
@@ -35,6 +37,7 @@ export default async function ProductViewPage({ params }) {
                 __html: product?.description.replace(/\./g, ".<br/><br/>"),
               }}
             />
+            <div className="alert alert-primary">Brand: {product?.brand}</div>
           </div>
           {/* Before accessing category and tags, make suer .populate() is used 
       in api routes and ref: "Category" models are imported in product model */}
@@ -49,10 +52,7 @@ export default async function ProductViewPage({ params }) {
             <ProductLike product={product} />
             <small>Posted {dayjs(product?.createdAt).fromNow()}</small>
           </div>
-          <div className="card-footer d-flex justify-content-between">
-            <small>Brand:{product?.brand}</small>
-            <small>🌟Stars</small>
-          </div>
+          <ProductRating />
         </div>
       </div>
       <div className="row">

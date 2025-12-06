@@ -56,7 +56,7 @@ export const ProductProvider = ({ children }) => {
   {
     /* Modal for image preview */
   }
-  const openModal = (url) => {
+  const openImagePreviewModal = (url) => {
     setCurrentImagePreviewUrl(url);
     setShowImagePreviewModal(true);
   };
@@ -67,6 +67,7 @@ export const ProductProvider = ({ children }) => {
   const closeModal = () => {
     setCurrentImagePreviewUrl("");
     setShowImagePreviewModal(false);
+    setShowRatingModal(false);
   };
 
   // functions
@@ -332,7 +333,7 @@ export const ProductProvider = ({ children }) => {
         setShowImagePreviewModal,
         currentImagePreviewUrl,
         setCurrentImagePreviewUrl,
-        openModal,
+        openImagePreviewModal,
         closeModal,
         //rating system
         showRatingModal,
