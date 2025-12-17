@@ -52,7 +52,10 @@ export default async function ProductViewPage({ params }) {
             <ProductLike product={product} />
             <small>Posted {dayjs(product?.createdAt).fromNow()}</small>
           </div>
-          <ProductRating />
+          <div className="card-footer">
+            {" "}
+            <ProductRating product={product} />
+          </div>
         </div>
       </div>
       <div className="row">

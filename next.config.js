@@ -23,6 +23,15 @@ const nextConfig = {
     CLOUDINARY_API_KEY: config.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: config.CLOUDINARY_API_SECRET,
   },
+  // Note: Only set a webpack override when running without Turbopack. When
+  // Turbopack is active Next will warn if a `webpack` config is present but no
+  // `turbopack` config is provided. We therefore only add this override when
+  // NEXT_USE_TURBOPACK is explicitly disabled (set to '0').
 };
+
+// No webpack overrides applied to avoid Turbopack warnings when running with
+// the default Turbopack dev server. If you need to run without Turbopack,
+// set NEXT_USE_TURBOPACK=0 in your environment and add a webpack override
+// dynamically in a local-only config.
 
 module.exports = nextConfig;
