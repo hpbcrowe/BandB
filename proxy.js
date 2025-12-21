@@ -7,7 +7,7 @@ export const config = {
 };
 //Protect pages, Only logged in user can visit
 export default withAuth(
-  async function middleware(req) {
+  async function proxy(req) {
     //Get the URL
     const url = req.nextUrl.pathname;
     //Get the userrole from the URL
