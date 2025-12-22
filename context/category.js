@@ -71,6 +71,27 @@ export const CategoryProvider = ({ children }) => {
   };
 
   /**
+   * Function to fetch all public categories from the API
+   * This can be used in product filters or other public views
+   *  this is public don't have to be admin
+   */
+  const fetchCategoriesPublic = async () => {
+    try {
+      // Make a GET request to fetch all categories
+      const response = await fetch(`${process.env.API}/categories`);
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data || "Failed to fetch categories. Please try again.");
+      } else {
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to fetch catetories. Please try again.");
+    }
+  };
+
+  /**
    * Function to update an existing category
    * It makes a PUT request to the API to update the category
    */
@@ -151,6 +172,7 @@ export const CategoryProvider = ({ children }) => {
         setCategories,
         createCategory,
         fetchCategories,
+        fetchCategoriesPublic,
         updateCategory,
         deleteCategory,
         updatingCategory,
