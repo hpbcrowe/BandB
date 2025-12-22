@@ -1,3 +1,10 @@
+/**
+ *  Admin Dashboard Page
+ * @returns
+ * Renders the main admin dashboard page with a placeholder for future content.
+ *
+ */
+
 export default function AdminDashboard() {
   return (
     <div className="container">

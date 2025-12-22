@@ -3,11 +3,11 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server.js";
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/user/:path*", "/api/adminr/:path*"],
+  matcher: ["/dashboard/:path*", "/api/user/:path*", "/api/admin/:path*"],
 };
 //Protect pages, Only logged in user can visit
 export default withAuth(
-  async function middleware(req) {
+  async function proxy(req) {
     //Get the URL
     const url = req.nextUrl.pathname;
     //Get the userrole from the URL

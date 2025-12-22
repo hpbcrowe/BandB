@@ -10,6 +10,9 @@ export default function TopNav() {
       <Link href="/" className="nav-link">
         🛒 Beauty and Buckaroo
       </Link>
+      <Link href="/shop" className="nav-link">
+        SHOP
+      </Link>
       {status === "authenticated" ? (
         <div className="d-flex justify-content-end">
           <Link

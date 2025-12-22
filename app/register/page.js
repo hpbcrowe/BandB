@@ -5,6 +5,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
+/**
+ *  Register Page
+ * @returns
+ *  Renders the user registration page with a form to input name, email, and password.
+ * Handles form submission and displays success or error messages.
+ *
+ */
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

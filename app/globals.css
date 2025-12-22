@@ -2,3 +2,17 @@
 .pointer {
     cursor: pointer;
 }
+
+.filter-scroll {
+    max-height: 200px;
+    overflow-y: scroll;
+}
+
+/* Hide scrollbar in filters: Style the scrollbar for better visibility */
+.filter-scroll::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+.filter-scroll::-webkit-scrollbar-thumb {
+    background-color: #f2f2f2; /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners */
+}

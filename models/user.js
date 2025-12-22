@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.plugin(uniqueValidator);
+userSchema.plugin(uniqueValidator, " is already taken");
 
 //export the model if it exists, create it if it doesn't
 export default mongoose.models.User || mongoose.model("User", userSchema);
