@@ -36,6 +36,8 @@ export const ProductProvider = ({ children }) => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [currentRatingProduct, setCurrentRatingProduct] = useState(0);
   const [comment, setComment] = useState("");
+  //brands
+  const [brands, setBrands] = useState([]);
 
   //hook
   const router = useRouter();
@@ -154,6 +156,7 @@ export const ProductProvider = ({ children }) => {
         });
     }
   };
+
   /**
    * DELETE IMAGE
    * @param {*} public_id
@@ -225,6 +228,15 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  /**   * FETCH PRODUCTS
+   * @param {*} page
+   * @returns
+   * Fetches products from the server with pagination.
+   * Updates the products, currentPage, and totalPages state with the response data.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
+
   const fetchProducts = async (page = 1) => {
     try {
       const response = await fetch(`${process.env.API}/product?page=${page}`, {
@@ -237,6 +249,34 @@ export const ProductProvider = ({ children }) => {
         setProducts(data?.products);
         setCurrentPage(data?.currentPage);
         setTotalPages(data?.totalPages);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error fetching products");
+    }
+  };
+
+  /**   * FETCH BRANDS
+   * @returns
+   * Fetches product brands from the server.
+   * Updates the brands state with the response data.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch(`${process.env.API}/product/brands`, {
+        method: "GET",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data?.err || "Failed to fetch brands");
+      } else {
+        // Normalize API response to always be an array for consumers.
+        // Some API implementations return { brands: [...] } or an array directly.
+        const normalized = Array.isArray(data) ? data : data?.brands ?? [];
+        setBrands(normalized);
       }
     } catch (err) {
       console.error(err);
@@ -342,6 +382,8 @@ export const ProductProvider = ({ children }) => {
         setCurrentRatingProduct,
         comment,
         setComment,
+        fetchBrands,
+        brands,
       }}
     >
       {children}

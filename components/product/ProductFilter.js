@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Stars from "@/components/product/Stars";
 import { useCategory } from "@/context/category";
 import { useTag } from "@/context/tag";
+import { useProduct } from "@/context/product";
 
 export default function ProductFilter({ searchParams }) {
   const pathname = "/shop/";
@@ -16,11 +17,14 @@ export default function ProductFilter({ searchParams }) {
   //context
   const { fetchCategoriesPublic, categories } = useCategory();
   const { fetchTagsPublic, tags } = useTag();
+  const { fetchBrands, brands } = useProduct();
 
   useEffect(() => {
     fetchCategoriesPublic();
     fetchTagsPublic();
+    fetchBrands();
   }, []);
+  // console.log("useProduct()", useProduct());
 
   const activeButton = "btn btn-primary btn-raised mx-1 rounded-pill";
   const button = "btn  btn-raised mx-1 rounded-pill";
@@ -53,7 +57,7 @@ export default function ProductFilter({ searchParams }) {
   };
 
   return (
-    <div>
+    <div className="mb-5">
       <p className="lead">Filter Products</p>
       <Link className="text-danger" href="/shop">
         Clear Filters
@@ -211,6 +215,42 @@ export default function ProductFilter({ searchParams }) {
           </div>
         </>
       )}
+      <p className="mt-4 alert alert-primary">Brands</p>
+      <div className="row d-flex align-items-center mx-1 filter-scroll">
+        {console.log("brands in product filter => ", brands)}
+        {/* Ensure brands is an array before mapping to avoid runtime errors */}
+        {Array.isArray(brands)
+          ? brands.map((b) => {
+              const isActive = brand === b;
+
+              const url = {
+                pathname,
+                query: {
+                  ...searchParams,
+                  brand: b,
+                  page: 1,
+                },
+              };
+
+              return (
+                <div key={String(b)}>
+                  {" "}
+                  <Link href={url} className={isActive ? activeButton : button}>
+                    {b}
+                  </Link>
+                  {isActive && (
+                    <span
+                      onClick={() => handleRemoveFilter(["brand"])}
+                      className="pointer"
+                    >
+                      X
+                    </span>
+                  )}
+                </div>
+              );
+            })
+          : null}
+      </div>
 
       {<pre>{/*JSON.stringify(tags, null, 4)*/}</pre>}
     </div>
