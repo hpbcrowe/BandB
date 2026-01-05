@@ -17,9 +17,12 @@ async function getProducts(resolvedSearchParams) {
   console.log("search query in shop page => ", searchQuery);
 
   try {
-    const response = await fetch(`${process.env.API}/product?${searchQuery}`, {
-      method: "GET",
-    });
+    const response = await fetch(
+      `${process.env.API}/product/filters?${searchQuery}`,
+      {
+        method: "GET",
+      }
+    );
     if (!response.ok) {
       throw new Error("Failed to fetch products");
     }
