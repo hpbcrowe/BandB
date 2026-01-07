@@ -32,7 +32,7 @@ export async function GET(req) {
     // retrieve all products based on the applied filter criteria
     const allProducts = await Product.find(filter)
       .populate("category", "name")
-      .populate("tag", "name")
+      .populate("tags", "name")
       .sort({ createdAt: -1 });
 
     //function to calculate the average rating of a product
@@ -50,11 +50,39 @@ export async function GET(req) {
       });
       return totalRating / ratings.length;
     };
-    const ProductsWithAvgRatings = allProducts.map((product) => ({
+    const productsWithAvgRatings = allProducts.map((product) => ({
       ...product.toObject(),
       averageRating: calculateAverageRating(product.ratings),
     }));
     // filter products based on ratings query params
+    const filteredProducts = productsWithAvgRatings.filter((product) => {
+      if (!ratings) return true; // if no ratings filter, include all products
+
+      const targetRating = Number(ratings);
+      const difference = product.averageRating - targetRating;
+      /**
+       * If the difference between the product's average rating and the target rating
+       * is within ±0.5, include the product in the results.
+       * For example, if the target rating is 4.0, include products with
+       * average ratings between 3.5 and 4.5.
+       */
+      return difference >= -0.5 && difference <= 0.5;
+    });
+    // total number of filtered products
+    const totalFilteredProducts = filteredProducts.length;
+
+    //apply pagination to the filtered products
+    const paginatedProducts = filteredProducts.slice(skip, skip + pageSize);
+    // return the paginated products along with current page and total pages
+    // as json response
+    return NextResponse.json(
+      {
+        products: paginatedProducts,
+        currentPage,
+        totalPages: Math.ceil(totalFilteredProducts / pageSize),
+      },
+      { status: 200 }
+    );
   } catch (err) {
     console.log("Error in product filters route =>", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

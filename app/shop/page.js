@@ -1,6 +1,7 @@
 import ProductFilter from "@/components/product/ProductFilter";
 import Pagination from "@/components/product/Pagination";
 import ProductCard from "@/components/product/ProductCard";
+import config from "../../config";
 // Force dynamic rendering for server-side rendering on each request
 export const dynamic = "force-dynamic";
 
@@ -17,22 +18,35 @@ async function getProducts(resolvedSearchParams) {
   console.log("search query in shop page => ", searchQuery);
 
   try {
-    const response = await fetch(
-      `${process.env.API}/product/filters?${searchQuery}`,
-      {
-        method: "GET",
-      }
-    );
+    const API_BASE = process.env.API || config.API;
+    const url = `${API_BASE}/product/filters?${searchQuery}`;
+    const response = await fetch(url, {
+      method: "GET",
+    });
+
     if (!response.ok) {
-      throw new Error("Failed to fetch products");
+      // capture body (if any) to help diagnose server errors
+      let bodyText = "";
+      try {
+        bodyText = await response.text();
+      } catch (e) {
+        /* ignore */
+      }
+      console.error(
+        `Product fetch failed: ${response.status} ${response.statusText} -> ${bodyText} (url: ${url})`
+      );
+      // return a safe fallback so the page renders instead of surfacing a thrown error
+      return { products: [], currentPage: 1, totalPages: 1 };
     }
+
     const data = await response.json();
     if (!data || !Array.isArray(data.products)) {
-      throw new Error("No products returned from API");
+      console.error("Invalid products payload from API", { url, data });
+      return { products: [], currentPage: 1, totalPages: 1 };
     }
     return data;
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching products:", err);
     return { products: [], currentPage: 1, totalPages: 1 };
   }
 }
