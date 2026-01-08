@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 
 import { useRouter } from "next/navigation";
 import Resizer from "react-image-file-resizer";
-import { set } from "mongoose";
 
 export const ProductContext = createContext();
 
@@ -38,6 +37,9 @@ export const ProductProvider = ({ children }) => {
   const [comment, setComment] = useState("");
   //brands
   const [brands, setBrands] = useState([]);
+  // Text Based Search
+  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [productSearchResults, setProductSearchResults] = useState([]);
 
   //hook
   const router = useRouter();
@@ -347,6 +349,29 @@ export const ProductProvider = ({ children }) => {
       toast.error("Error deleting product");
     }
   };
+
+  const fetchProductSearchResults = async (e) => {
+    // Prevent default form submission behavior
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `${process.env.API}/search/products?productSearchQuery=${productSearchQuery}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch product search results, network response was not ok"
+        );
+      }
+      const data = await response.json();
+      setProductSearchResults(data);
+      router.push(`/search/products?productSearchQuery=${productSearchQuery}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <ProductContext.Provider
       value={{
@@ -384,6 +409,11 @@ export const ProductProvider = ({ children }) => {
         setComment,
         fetchBrands,
         brands,
+        productSearchQuery,
+        setProductSearchQuery,
+        productSearchResults,
+        setProductSearchResults,
+        fetchProductSearchResults,
       }}
     >
       {children}
