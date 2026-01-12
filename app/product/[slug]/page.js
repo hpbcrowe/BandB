@@ -4,6 +4,7 @@ import ProductImage from "@/components/product/ProductImage";
 import ProductLike from "@/components/product/ProductLike";
 import ProductRating from "@/components/product/ProductRating";
 import Product from "@/models/product";
+import UserReviews from "@/components/product/UserReviews";
 
 dayjs.extend(relativeTime);
 
@@ -61,6 +62,11 @@ export default async function ProductViewPage({ params }) {
       <div className="row">
         <div className="col">
           <h4 className="text-center my-5">Related Products</h4>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col my-5">
+          <UserReviews reviews={product?.ratings} />{" "}
         </div>
       </div>
     </div>

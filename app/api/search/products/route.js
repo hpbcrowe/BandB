@@ -18,11 +18,11 @@ export async function GET(req) {
     // Extract the IDs of the found categories and tags
     const categoryIds = categories.map((cat) => cat._id);
     const tagIds = tags.map((tag) => tag._id);
-    // Search for products that match the search query in name or description
-    //main product search query
+    // Search for products that match the search query in title or description
+    // main product search query
     const products = await Product.find({
       $or: [
-        { name: { $regex: productSearchQuery, $options: "i" } },
+        { title: { $regex: productSearchQuery, $options: "i" } },
         { description: { $regex: productSearchQuery, $options: "i" } },
         { category: { $in: categoryIds } },
         { tags: { $in: tagIds } },

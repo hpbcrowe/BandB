@@ -350,6 +350,16 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  /**
+   *  FETCH PRODUCT SEARCH RESULTS
+   * @param { } e
+   * @return
+   * Fetches product search results based on the productSearchQuery state.
+   * Updates the productSearchResults state with the response data.
+   * Redirects to the search results page with the search query as a URL parameter.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
   const fetchProductSearchResults = async (e) => {
     // Prevent default form submission behavior
     e.preventDefault();
@@ -366,6 +376,7 @@ export const ProductProvider = ({ children }) => {
         );
       }
       const data = await response.json();
+      console.log("*****Product search results data => ", data);
       setProductSearchResults(data);
       router.push(`/search/products?productSearchQuery=${productSearchQuery}`);
     } catch (err) {
