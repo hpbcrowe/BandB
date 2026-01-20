@@ -65,7 +65,7 @@ export default async function ProductViewPage({ params }) {
         </div>
       </div>
       <div className="row">
-        <div className="col my-5">
+        <div className="col-lg-8 offset-lg-2 my-5">
           <UserReviews reviews={product?.ratings} />{" "}
         </div>
       </div>

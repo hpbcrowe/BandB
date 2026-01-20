@@ -1,12 +1,13 @@
 import React from "react";
 import Stars from "@/components/product/Stars";
+import RatingDistribution from "@/components/product/RatingDistribution";
 
 export default function UserReviews({ reviews }) {
   return (
     <>
       {reviews?.length > 0 ? (
         <>
-          <p>Ratings distribution</p>
+          <RatingDistribution reviews={reviews} />
           <ul className="list-group mt-4 bg-white">
             {reviews?.map((review, index) => (
               <li key={index} className="list-group-item mb-l">
