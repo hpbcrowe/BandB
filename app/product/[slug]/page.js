@@ -5,6 +5,20 @@ import ProductLike from "@/components/product/ProductLike";
 import ProductRating from "@/components/product/ProductRating";
 import Product from "@/models/product";
 import UserReviews from "@/components/product/UserReviews";
+import { get } from "mongoose";
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams?.slug);
+
+  return {
+    title: `${product?.title} - Beauty&Buckaroo`,
+    description: product?.description?.substring(0, 160),
+    openGraph: {
+      images: product?.images[0]?.secure_url,
+    },
+  };
+}
 
 dayjs.extend(relativeTime);
 
