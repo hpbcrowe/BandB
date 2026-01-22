@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { CategoryProvider } from "@/context/category";
 import { TagProvider } from "@/context/tag";
 import { ProductProvider } from "@/context/product";
+import { CartProvider } from "@/context/cart";
 
 export default function ClientProviders({ children }) {
   return (
@@ -13,9 +14,11 @@ export default function ClientProviders({ children }) {
       <CategoryProvider>
         <TagProvider>
           <ProductProvider>
-            <TopNav />
-            <Toaster />
-            {children}
+            <CartProvider>
+              <TopNav />
+              <Toaster />
+              {children}
+            </CartProvider>
           </ProductProvider>
         </TagProvider>
       </CategoryProvider>
