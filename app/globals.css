@@ -16,3 +16,10 @@
     background-color: #f2f2f2; /* Color of the scrollbar thumb */
     border-radius: 4px; /* Rounded corners */
 }
+
+/* Hide input number arrows or spinners */
+.no-spin-arrows::-webkit-outer-spin-button,
+.no-spin-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}   
