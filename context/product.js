@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 
 import { useRouter } from "next/navigation";
 import Resizer from "react-image-file-resizer";
-import { set } from "mongoose";
 
 export const ProductContext = createContext();
 
@@ -36,6 +35,11 @@ export const ProductProvider = ({ children }) => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [currentRatingProduct, setCurrentRatingProduct] = useState(0);
   const [comment, setComment] = useState("");
+  //brands
+  const [brands, setBrands] = useState([]);
+  // Text Based Search
+  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [productSearchResults, setProductSearchResults] = useState([]);
 
   //hook
   const router = useRouter();
@@ -154,6 +158,7 @@ export const ProductProvider = ({ children }) => {
         });
     }
   };
+
   /**
    * DELETE IMAGE
    * @param {*} public_id
@@ -225,6 +230,15 @@ export const ProductProvider = ({ children }) => {
     }
   };
 
+  /**   * FETCH PRODUCTS
+   * @param {*} page
+   * @returns
+   * Fetches products from the server with pagination.
+   * Updates the products, currentPage, and totalPages state with the response data.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
+
   const fetchProducts = async (page = 1) => {
     try {
       const response = await fetch(`${process.env.API}/product?page=${page}`, {
@@ -237,6 +251,34 @@ export const ProductProvider = ({ children }) => {
         setProducts(data?.products);
         setCurrentPage(data?.currentPage);
         setTotalPages(data?.totalPages);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error fetching products");
+    }
+  };
+
+  /**   * FETCH BRANDS
+   * @returns
+   * Fetches product brands from the server.
+   * Updates the brands state with the response data.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
+  const fetchBrands = async () => {
+    try {
+      const response = await fetch(`${process.env.API}/product/brands`, {
+        method: "GET",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data?.err || "Failed to fetch brands");
+      } else {
+        // Normalize API response to always be an array for consumers.
+        // Some API implementations return { brands: [...] } or an array directly.
+        const normalized = Array.isArray(data) ? data : data?.brands ?? [];
+        setBrands(normalized);
       }
     } catch (err) {
       console.error(err);
@@ -307,6 +349,40 @@ export const ProductProvider = ({ children }) => {
       toast.error("Error deleting product");
     }
   };
+
+  /**
+   *  FETCH PRODUCT SEARCH RESULTS
+   * @param { } e
+   * @return
+   * Fetches product search results based on the productSearchQuery state.
+   * Updates the productSearchResults state with the response data.
+   * Redirects to the search results page with the search query as a URL parameter.
+   * Handles errors and displays appropriate toast messages.
+   *
+   */
+  const fetchProductSearchResults = async (e) => {
+    // Prevent default form submission behavior
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `${process.env.API}/search/products?productSearchQuery=${productSearchQuery}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch product search results, network response was not ok"
+        );
+      }
+      const data = await response.json();
+      console.log("*****Product search results data => ", data);
+      setProductSearchResults(data);
+      router.push(`/search/products?productSearchQuery=${productSearchQuery}`);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <ProductContext.Provider
       value={{
@@ -342,6 +418,13 @@ export const ProductProvider = ({ children }) => {
         setCurrentRatingProduct,
         comment,
         setComment,
+        fetchBrands,
+        brands,
+        productSearchQuery,
+        setProductSearchQuery,
+        productSearchResults,
+        setProductSearchResults,
+        fetchProductSearchResults,
       }}
     >
       {children}

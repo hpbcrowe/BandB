@@ -2,6 +2,11 @@ import Image from "next/image";
 import Pagination from "@/components/product/Pagination";
 import ProductCard from "@/components/product/ProductCard";
 
+export const metadata = {
+  title: "Home - Beauty&Buckaroo",
+  description: "Browse our latest products",
+};
+
 async function getProducts(searchParams) {
   // `searchParams` can be a thenable in some Next.js runtimes — await it first
   const params = (await searchParams) || {};

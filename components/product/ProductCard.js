@@ -3,6 +3,7 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import ProductRating from "@/components/product/ProductRating";
+import AddToCart from "@/components/product/AddToCart";
 
 dayjs.extend(relativeTime);
 
@@ -20,7 +21,9 @@ export default function ({ product }) {
       </div>
       <div className="card-body">
         <Link href={`/product/${product?.slug}`}>
-          <h5 className="card-title">{product?.title}</h5>
+          <h5 className="card-title">
+            <strong>${product?.price.toFixed(2)}</strong> {product?.title}
+          </h5>
         </Link>
         <div
           dangerouslySetInnerHTML={{
@@ -44,6 +47,9 @@ export default function ({ product }) {
       <div className="card-footer d-flex justify-content-between align-items-center">
         <small>Brand:{product?.brand}</small>
         <ProductRating product={product} leaveARating={false} />
+      </div>
+      <div className="card-footer">
+        <AddToCart product={product} />
       </div>
     </div>
   );

@@ -4,6 +4,21 @@ import ProductImage from "@/components/product/ProductImage";
 import ProductLike from "@/components/product/ProductLike";
 import ProductRating from "@/components/product/ProductRating";
 import Product from "@/models/product";
+import UserReviews from "@/components/product/UserReviews";
+import { get } from "mongoose";
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams?.slug);
+
+  return {
+    title: `${product?.title} - Beauty&Buckaroo`,
+    description: product?.description?.substring(0, 160),
+    openGraph: {
+      images: product?.images[0]?.secure_url,
+    },
+  };
+}
 
 dayjs.extend(relativeTime);
 
@@ -61,6 +76,11 @@ export default async function ProductViewPage({ params }) {
       <div className="row">
         <div className="col">
           <h4 className="text-center my-5">Related Products</h4>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-lg-8 offset-lg-2 my-5">
+          <UserReviews reviews={product?.ratings} />{" "}
         </div>
       </div>
     </div>
