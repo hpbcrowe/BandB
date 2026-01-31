@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "@/context/cart";
 import Link from "next/link";
 
-export default function AddToCart({ product }) {
+export default function AddToCart({ product, reviewAndCheckout = true }) {
   const { addToCart, updateQuantity, removeFromCart, cartItems } = useCart();
 
   //Find if product is already in cart
@@ -62,6 +62,14 @@ export default function AddToCart({ product }) {
               +
             </button>
           </div>
+          {reviewAndCheckout && (
+            <Link
+              className="btn btn-outline-danger btn-raised btn-block mt-2"
+              href="/cart"
+            >
+              Review & Checkout
+            </Link>
+          )}
         </div>
       ) : (
         <button

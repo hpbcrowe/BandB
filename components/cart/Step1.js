@@ -2,6 +2,7 @@ import { useCart } from "@/context/cart";
 import Image from "next/image";
 import Link from "next/link";
 import AddToCart from "@/components/product/AddToCart";
+import OrderSummary from "@/components/cart/OrderSummary";
 
 export default function Step1({ onNextStep }) {
   //get cart items from context
@@ -53,14 +54,26 @@ export default function Step1({ onNextStep }) {
                         }}
                       />
                     </div>
+                    <div className="mt-3 ">
+                      <AddToCart product={product} reviewAndCheckout={false} />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           ))}
+          <div className="d-flex justify-content-end my-4">
+            <button
+              className="btn btn-danger btn-raised col-6"
+              onClick={onNextStep}
+            >
+              Next
+            </button>
+          </div>
         </div>
+
         <div className="col-lg-4 ">
-          <p>Order Summary</p>
+          <OrderSummary />
         </div>
       </div>
     </div>
