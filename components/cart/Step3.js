@@ -1,10 +1,72 @@
+import { useState } from "react";
+import { useCart } from "@/context/cart";
+import OrderSummary from "@/components/cart/OrderSummary";
+import toast from "react-hot-toast";
+import { set } from "mongoose";
+
 export default function Step3({ onPrevStep }) {
+  const { cartItems } = useCart();
+
+  //state
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    setLoading(true);
+    try {
+      const cartData = cartItems.map((item) => ({
+        _id: item._id,
+        quantity: item.quantity,
+      }));
+      const response = await fetch(`${process.env.API}/user/stripe/session`, {
+        method: "POST",
+        body: JSON.stringify({ cartData }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.err || "Failed to create Stripe session.");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error(
+        "An error occurred during payment processing. Please try again.",
+      );
+      setLoading(false);
+    }
+  };
   return (
-    <div>
-      Payment Information
-      <button className="btn btn-primary" onClick={onPrevStep}>
-        Previous
-      </button>
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-8 ">
+          <p className="alert alert-primary">Payment Method</p>
+          <h2 className=" text-center">🔓💳</h2>
+
+          <p>Flat rate $5 shipping fee will apply for all orders in USA!</p>
+
+          <p className="lead card p-5 bg-secondary text-light">
+            Clicking 'Place Order' will securly redirect you to our trusted
+            payment partner, Stripe to complete your order.
+          </p>
+
+          <div className="d-flex justify-content-end my-4">
+            <button
+              className="btn btn-outline-danger btn-raised col-6"
+              onClick={onPrevStep}
+            >
+              Previous
+            </button>
+            <button
+              className="btn btn-success btn-raised col-6"
+              onClick={handleClick}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Place Order"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
