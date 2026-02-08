@@ -66,6 +66,9 @@ export default function Step3({ onPrevStep }) {
             </button>
           </div>
         </div>
+        <div className="col-lg-4">
+          <OrderSummary />
+        </div>
       </div>
     </div>
   );
