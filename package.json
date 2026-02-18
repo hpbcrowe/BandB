@@ -26,6 +26,7 @@
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
     "react-image-file-resizer": "^0.4.8",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "stripe": "^20.3.1"
   }
 }
