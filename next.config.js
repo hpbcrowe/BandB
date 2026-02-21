@@ -25,6 +25,8 @@ const nextConfig = {
     STRIPE_PUBLISHABLE_KEY: config.STRIPE_PUBLISHABLE_KEY,
     STRIPE_SECRET_KEY: config.STRIPE_SECRET_KEY,
     STRIPE_TAX_RATE: config.STRIPE_TAX_RATE,
+    STRIPE_SHIPPING_RATE: config.STRIPE_SHIPPING_RATE,
+    DOMAIN: config.DOMAIN,
   },
   // Note: Only set a webpack override when running without Turbopack. When
   // Turbopack is active Next will warn if a `webpack` config is present but no
