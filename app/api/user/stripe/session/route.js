@@ -24,10 +24,14 @@ export async function POST(req) {
             },
             unit_amount: unitAmount,
           },
-          //tax_rates: [""]
+          tax_rates: [process.env.STRIPE_TAX_RATE],
+          quantity: item.quantity,
         };
       }),
     );
+    const session = await stripe.checkout.sessions.create({
+      line_items: lineItems,
+    });
   } catch (err) {
     console.log(err);
     return NextResponse.json(

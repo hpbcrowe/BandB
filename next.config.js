@@ -24,6 +24,7 @@ const nextConfig = {
     CLOUDINARY_API_SECRET: config.CLOUDINARY_API_SECRET,
     STRIPE_PUBLISHABLE_KEY: config.STRIPE_PUBLISHABLE_KEY,
     STRIPE_SECRET_KEY: config.STRIPE_SECRET_KEY,
+    STRIPE_TAX_RATE: config.STRIPE_TAX_RATE,
   },
   // Note: Only set a webpack override when running without Turbopack. When
   // Turbopack is active Next will warn if a `webpack` config is present but no
