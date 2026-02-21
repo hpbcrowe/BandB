@@ -13,13 +13,16 @@ export default function Step3({ onPrevStep }) {
   const handleClick = async () => {
     setLoading(true);
     try {
-      const cartData = cartItems.map((item) => ({
+      const cartData = cartItems?.map((item) => ({
         _id: item._id,
         quantity: item.quantity,
       }));
       const response = await fetch(`${process.env.API}/user/stripe/session`, {
         method: "POST",
-        body: JSON.stringify({ cartData }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cartItems: cartData }),
       });
       const data = await response.json();
       if (response.ok) {
