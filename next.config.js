@@ -27,6 +27,7 @@ const nextConfig = {
     STRIPE_TAX_RATE: config.STRIPE_TAX_RATE,
     STRIPE_SHIPPING_RATE: config.STRIPE_SHIPPING_RATE,
     DOMAIN: config.DOMAIN,
+    STRIPE_WEBHOOK_SECRET: config.STRIPE_WEBHOOK_SECRET,
   },
   // Note: Only set a webpack override when running without Turbopack. When
   // Turbopack is active Next will warn if a `webpack` config is present but no
