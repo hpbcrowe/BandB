@@ -8,6 +8,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   await dbConnect();
+  //console.log("Request body received in Stripe session route: ", await req.json());
   const { cartItems, couponCode } = await req.json();
   const user = await currentUser();
 
