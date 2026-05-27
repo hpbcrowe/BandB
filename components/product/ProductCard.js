@@ -22,9 +22,14 @@ export default function ({ product }) {
       <div className="card-body">
         <Link href={`/product/${product?.slug}`}>
           <h5 className="card-title">
-            <strong>${product?.price.toFixed(2)}</strong> {product?.title}
+            <strong>${product?.price.toFixed(2)}</strong> {product?.title}{" "}
           </h5>
         </Link>
+        {product?.previousPrice > product?.price && (
+          <h5 className="card-title text-danger">
+            <del>${product?.previousPrice.toFixed(2)}</del>
+          </h5>
+        )}
         <div
           dangerouslySetInnerHTML={{
             __html:
