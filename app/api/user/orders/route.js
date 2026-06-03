@@ -11,6 +11,7 @@ export async function GET(req) {
     const orders = await Order.find({ userId: user._id }).sort({
       createdAt: -1,
     });
+    console.log("************Orders fetched for user ID:", user._id, orders);
     return NextResponse.json({ orders });
   } catch (err) {
     console.log(err);

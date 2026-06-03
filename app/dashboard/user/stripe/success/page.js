@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 export default function userStripeSuccess() {
   return (
     <div className="container my-5">

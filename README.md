@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### using Stripe CLI
+
+## open command prompt and enter
+
+stripe login
+
+## You should get the following response
+
+Your pairing code is: pepped-sleek-admire-superb
+This pairing code verifies your authentication with Stripe.
+Press Enter to open the browser or visit https://dashboard.stripe.com/stripecli/confirm_auth?t=mVAuVrdDZ0DpYO44FYz0gjWOeYrutgPa (^C to quit)
+
+### after hitting enter a browswer will open where you will have to log into stripe.
+
+> Done! The Stripe CLI is configured for BeautyandtheBuckaroo sandbox with account id acct_1T0EsiBIpasaOfis
+> Please note: this key will expire after 90 days, at which point you'll need to re-authenticate.
+
+### Then enter this in the command line
+
+stripe listen --load-from-webhooks-api --forward-to localhost:3000/api/webhook
