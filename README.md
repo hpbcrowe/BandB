@@ -55,3 +55,15 @@ Press Enter to open the browser or visit https://dashboard.stripe.com/stripecli/
 ### Then enter this in the command line
 
 stripe listen --load-from-webhooks-api --forward-to localhost:3000/api/webhook
+
+###updating the stripe cli version
+###download and move file into ben crowe / Stripe
+####in the file explorer delete the path and then enter cmd
+###this should open the cmd window
+
+### enter stripe login in the cmd window
+
+##used package manager scoop to install stripe cli
+scoop bucket add stripe https://github.com/stripe/scoop-stripe-cli.git
+scoop install stripe
+scoop update stripe
