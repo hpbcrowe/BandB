@@ -10,8 +10,8 @@ export async function POST(req) {
   // Stripe sends the raw body as a string, so we need to read it as text
   // We also need to get the Stripe signature from the headers to verify the webhook
   // Read the raw body as text
-  const _raw = await req.text();
-  const sig = req.headers.get("stripe-signature");
+  const _rawData = await req.text();
+  const stripeSignature = req.headers.get("stripe-signature");
 
   try {
     /**
@@ -26,8 +26,8 @@ export async function POST(req) {
     */
     // Construct the event using the raw body and the signature stripe sdk
     const event = stripe.webhooks.constructEvent(
-      _raw,
-      sig,
+      _rawData,
+      stripeSignature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
     console.log("******Webhook signature verified successfully");
@@ -42,14 +42,31 @@ export async function POST(req) {
           : [];
         const paymentIntentId = session.payment_intent;
 
-        const paymentIntent =
-          await stripe.paymentIntents.retrieve(paymentIntentId);
-        const charge = paymentIntent.charges?.data?.[0];
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          paymentIntentId,
+          {
+            expand: ["latest_charge"],
+          },
+        );
+        const latestCharge =
+          paymentIntent.latest_charge &&
+          typeof paymentIntent.latest_charge === "object"
+            ? paymentIntent.latest_charge
+            : null;
+        const charge = latestCharge || paymentIntent.charges?.data?.[0];
+        const shippingAddress =
+          session.shipping_details?.address ||
+          paymentIntent.shipping?.address ||
+          charge?.shipping?.address ||
+          null;
 
         const productIds = cartItems.map((item) => item._id);
         const products = await Product.find({ _id: { $in: productIds } });
 
+        // Create an object to quickly map product details by product ID for easy access when creating the order
         const productMap = {};
+
+        // Map product details to their IDs for easy access
         products.forEach((product) => {
           productMap[product._id.toString()] = {
             product: product._id,
@@ -60,20 +77,27 @@ export async function POST(req) {
           };
         });
 
+        //create cartItems array with product details
         const cartItemsWithProductDetails = cartItems.map((cartItem) => ({
           ...productMap[cartItem._id],
           quantity: cartItem.quantity,
         }));
 
+        //create order in the database with the payment intent and charge details, shipping info, userId, and cartItems
         const orderData = {
-          chargeId: charge?.id || paymentIntentId,
+          chargeId:
+            charge?.id ||
+            (typeof paymentIntent.latest_charge === "string"
+              ? paymentIntent.latest_charge
+              : paymentIntentId),
           payment_intent: paymentIntentId,
-          receipt_url: charge?.receipt_url,
+          receipt_url: charge?.receipt_url || "",
           refunded: paymentIntent.amount_refunded > 0,
           status: paymentIntent.status,
-          amount_captured: paymentIntent.amount_captured,
+          amount_captured:
+            charge?.amount_captured ?? paymentIntent.amount_received ?? 0,
           currency: paymentIntent.currency,
-          shipping: session.shipping,
+          shipping: shippingAddress ? { address: shippingAddress } : undefined,
           userId,
           cartItems: cartItemsWithProductDetails,
         };
@@ -84,6 +108,7 @@ export async function POST(req) {
           paymentIntentId,
         );
 
+        // gather product ids from cartItems and decrement stock for each product
         for (const cartItem of cartItems) {
           const product = await Product.findById(cartItem._id);
           if (!product) continue;

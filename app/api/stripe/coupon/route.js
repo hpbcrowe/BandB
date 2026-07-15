@@ -13,6 +13,6 @@ export async function POST(req) {
     return NextResponse.json(coupon);
   } catch (err) {
     console.log("Error validating coupon:", err);
-    return NextResponse.json(err, { status: 400 });
+    return NextResponse.json(err, { status: 500 });
   }
 }

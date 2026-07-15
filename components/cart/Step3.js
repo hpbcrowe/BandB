@@ -10,6 +10,15 @@ export default function Step3({ onPrevStep }) {
   //state
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Handle the click event for placing an order. This function prepares
+   * the payload with cart items and coupon code (if valid),
+   * sends it to the backend to create a Stripe session, and
+   * redirects the user to the Stripe checkout page.
+   * It also handles loading state and error notifications.
+   *
+   *
+   */
   const handleClick = async () => {
     setLoading(true);
     try {
