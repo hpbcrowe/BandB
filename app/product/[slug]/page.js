@@ -3,9 +3,11 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import ProductImage from "@/components/product/ProductImage";
 import ProductLike from "@/components/product/ProductLike";
 import ProductRating from "@/components/product/ProductRating";
+import CouponCode from "@/components/product/CouponCode";
 import Product from "@/models/product";
 import UserReviews from "@/components/product/UserReviews";
 import { get } from "mongoose";
+import AddToCart from "@/components/product/AddToCart";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -42,8 +44,9 @@ export default async function ProductViewPage({ params }) {
   return (
     <div className="container my-4">
       <div className="row">
-        <div className="col-lg-8 offset-lg-2 card py-5">
+        <div className="col-lg-8 offset-lg-2 card pt-5">
           <h1 className="text-center">{product?.title}</h1>
+          <CouponCode product={product} />
           {/*Show product Image in modal */}
           <ProductImage product={product} />
           <div className="card-body">
@@ -70,6 +73,9 @@ export default async function ProductViewPage({ params }) {
           <div className="card-footer">
             {" "}
             <ProductRating product={product} />
+            <div className="my-3">
+              <AddToCart product={product} />
+            </div>
           </div>
         </div>
       </div>

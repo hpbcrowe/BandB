@@ -16,7 +16,15 @@ export default function ClientProviders({ children }) {
           <ProductProvider>
             <CartProvider>
               <TopNav />
-              <Toaster />
+              <Toaster
+                toastOptions={{
+                  style: {
+                    whiteSpace: "nowrap",
+                    maxWidth: "none",
+                    width: "fit-content",
+                  },
+                }}
+              />
               {children}
             </CartProvider>
           </ProductProvider>

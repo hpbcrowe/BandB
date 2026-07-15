@@ -23,8 +23,8 @@ export default function ProductCreate() {
   const { tags, fetchTags } = useTag();
 
   const imagePreviews = updatingProduct
-    ? updatingProduct?.images ?? []
-    : product?.images ?? [];
+    ? (updatingProduct?.images ?? [])
+    : (product?.images ?? []);
 
   useEffect(() => {
     fetchCategories();
@@ -77,6 +77,22 @@ export default function ProductCreate() {
             : setProduct({ ...product, price: e.target.value })
         }
       />
+
+      {updatingProduct && (
+        <input
+          type="number"
+          placeholder="Previous Price"
+          min="1"
+          className="form-control p-2 mb-2"
+          value={updatingProduct?.previousPrice}
+          onChange={(e) =>
+            setUpdatingProduct({
+              ...updatingProduct,
+              previousPrice: e.target.value,
+            })
+          }
+        />
+      )}
       <input
         type="text"
         placeholder="Color"
@@ -162,7 +178,7 @@ export default function ProductCreate() {
           ?.filter(
             (ft) =>
               ft?.parentCategory ===
-              (updatingProduct?.category?._id || product?.category?._id)
+              (updatingProduct?.category?._id || product?.category?._id),
           )
           // only show tags that belong to the selected category
           // if no category is selected, show no tags
@@ -206,7 +222,9 @@ export default function ProductCreate() {
           ))}
       </div>
       <div className="form-group mb-3">
-        <label className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}`}>
+        <label
+          className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}`}
+        >
           {uploading ? "Processing" : "Upload Images"}
           <input
             type="file"

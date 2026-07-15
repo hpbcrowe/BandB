@@ -5,24 +5,42 @@ import toast from "react-hot-toast";
 import { set } from "mongoose";
 
 export default function Step3({ onPrevStep }) {
-  const { cartItems } = useCart();
+  const { cartItems, validCoupon, couponCode } = useCart();
 
   //state
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Handle the click event for placing an order. This function prepares
+   * the payload with cart items and coupon code (if valid),
+   * sends it to the backend to create a Stripe session, and
+   * redirects the user to the Stripe checkout page.
+   * It also handles loading state and error notifications.
+   *
+   *
+   */
   const handleClick = async () => {
     setLoading(true);
     try {
+      const payload = {};
+
       const cartData = cartItems?.map((item) => ({
         _id: item._id,
         quantity: item.quantity,
       }));
+      // Add cart items and coupon code to payload
+      payload.cartItems = cartData;
+      if (validCoupon) {
+        payload.couponCode = couponCode;
+      }
+
+      // Send payload to backend to create Stripe session
       const response = await fetch(`${process.env.API}/user/stripe/session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cartItems: cartData }),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
       if (response.ok) {

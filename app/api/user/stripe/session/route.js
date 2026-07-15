@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/utils/dbConnect";
-import { currentUser } from "@/utils/currentUser";
+//import { currentUser } from "@/utils/currentUser";
 import Product from "@/models/product";
-import { metadata } from "@/app/page";
+
+import { getToken } from "next-auth/jwt";
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   await dbConnect();
+  //console.log("Request body received in Stripe session route: ", await req.json());
   const { cartItems, couponCode } = await req.json();
-  const user = await currentUser();
+  //const user = await currentUser();
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const user = token?.user;
 
   try {
     const lineItems = await Promise.all(
@@ -38,11 +42,9 @@ export async function POST(req) {
       client_reference_id: user._id,
       mode: "payment",
       payment_method_types: ["card"],
-      payment_intent_data: {
-        metadata: {
-          cartItems: JSON.stringify(cartItems),
-          userId: user._id,
-        },
+      metadata: {
+        cartItems: JSON.stringify(cartItems),
+        userId: user._id,
       },
       shipping_options: [
         {
