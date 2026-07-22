@@ -14,6 +14,8 @@ export async function POST(req) {
   //const user = await currentUser();
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const user = token?.user;
+  const appOrigin =
+    req.nextUrl.origin || process.env.DOMAIN || process.env.NEXTAUTH_URL;
 
   try {
     const lineItems = await Promise.all(
@@ -38,7 +40,7 @@ export async function POST(req) {
     );
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
-      success_url: `${process.env.DOMAIN}/dashboard/user/stripe/success`,
+      success_url: `${appOrigin}/dashboard/user/stripe/success`,
       client_reference_id: user._id,
       mode: "payment",
       payment_method_types: ["card"],
