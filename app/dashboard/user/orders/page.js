@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 export default function UserOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const router = useRouter();
 
   const normalizeOrders = (payload) => {
@@ -25,28 +26,49 @@ export default function UserOrders() {
   // Example API call to fetch orders
   const fetchOrders = async () => {
     try {
-      // Replace with your actual API endpoint
-      // For demonstration, the API endpoint is assumed to be /api/orders
-      const response = await fetch(`${process.env.API}/user/orders`, {
+      const response = await fetch("/api/user/orders", {
         method: "GET",
+        credentials: "include",
+        cache: "no-store",
       });
-      // Check if the response is successful
+
+      const contentType = response.headers.get("content-type") || "";
+
+      if (!response.ok) {
+        if (contentType.includes("application/json")) {
+          const payload = await response.json();
+          setFetchError(payload?.err || "Failed to load recent orders.");
+        } else {
+          setFetchError(`Failed to load recent orders (${response.status}).`);
+        }
+        setOrders([]);
+        return;
+      }
+
+      if (!contentType.includes("application/json")) {
+        setFetchError(
+          "Unexpected server response. Please sign in again and retry.",
+        );
+        setOrders([]);
+        return;
+      }
+
       const data = await response.json();
+      setFetchError("");
 
       setOrders(normalizeOrders(data));
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching orders:", err);
+      setFetchError("Unable to load recent orders. Please try again later.");
+    } finally {
       setLoading(false);
     }
   };
 
   const handleCancelOrder = async (orderId) => {
     try {
-      // Replace with your actual API endpoint
-      // For demonstration, the API endpoint is assumed to be /api/orders
       const response = await fetch(
-        `${process.env.API}/user/orders/refund?orderId=${orderId}`,
+        `/api/user/orders/refund?orderId=${orderId}`,
         {
           method: "POST",
         },
@@ -84,6 +106,16 @@ export default function UserOrders() {
       <div className="row">
         <div className="col">
           <h4 className="text-center">Recent Orders</h4>
+          {fetchError && (
+            <div className="alert alert-warning" role="alert">
+              {fetchError}
+            </div>
+          )}
+          {!fetchError && orders?.length === 0 && (
+            <div className="alert alert-info" role="alert">
+              No recent orders found for this account.
+            </div>
+          )}
           {orders?.length > 0 &&
             orders.map((order) => (
               <div key={order._id} className="mb-4 p-4 alert alert-secondary">

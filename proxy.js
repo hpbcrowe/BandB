@@ -3,7 +3,7 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server.js";
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/user/:path*", "/api/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/api/admin/:path*"],
 };
 //Protect pages, Only logged in user can visit
 export default withAuth(
@@ -26,7 +26,9 @@ export default withAuth(
         if (!token) {
           return false;
         }
+
+        return true;
       },
     },
-  }
+  },
 );
