@@ -1,6 +1,13 @@
+"use client";
 import Link from "next/link";
+import { useCart } from "@/context/cart";
+import { useEffect } from "react";
 
 export default function userStripeSuccess() {
+  const { clearCart } = useCart();
+  useEffect(() => {
+    clearCart();
+  }, []);
   return (
     <div className="container my-5">
       <div className="row">
