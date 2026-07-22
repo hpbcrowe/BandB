@@ -55,7 +55,9 @@ export default async function ProductViewPage({ params }) {
                 __html: product?.description.replace(/\./g, ".<br/><br/>"),
               }}
             />
-            <div className="alert alert-primary">Brand: {product?.brand}</div>
+            <div className="alert alert-primary mt-4">
+              Brand: {product?.brand}
+            </div>
           </div>
           {/* Before accessing category and tags, make suer .populate() is used 
       in api routes and ref: "Category" models are imported in product model */}

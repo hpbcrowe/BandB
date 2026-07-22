@@ -128,6 +128,17 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Clear the cart by removing all items from local storage and resetting the
+   * cartItems state to an empty array. This function is useful for scenarios
+   *  where the user completes a purchase or wants to start fresh with an empty cart.
+   *
+   */
+  const clearCart = () => {
+    localStorage.removeItem("cartItems");
+    setCartItems([]);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -140,6 +151,7 @@ export const CartProvider = ({ children }) => {
         handleCoupon,
         percentOff,
         validCoupon,
+        clearCart,
       }}
     >
       {children}
