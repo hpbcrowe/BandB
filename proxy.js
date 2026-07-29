@@ -13,20 +13,37 @@ export default withAuth(
     //Get the userrole from the URL
     const userRole = req?.nextauth?.token?.user?.role;
 
+    console.log(
+      `[PROXY] URL: ${url}, userRole: ${userRole}, token:`,
+      JSON.stringify(req?.nextauth?.token),
+    );
+
     //if url includes admin and the user is not equal to admin
     if (url?.includes("/admin") && userRole !== "admin") {
-      //send user back to home page.
+      console.log(`[PROXY] Access denied - user role is not admin`);
+      // For API routes, return 401 Unauthorized
+      if (url?.startsWith("/api/")) {
+        return NextResponse.json(
+          { err: "Unauthorized - admin role required" },
+          { status: 401 },
+        );
+      }
+      // For pages, redirect to home
       return NextResponse.redirect(new URL("/", req.url));
     }
+
+    console.log(`[PROXY] Access allowed`);
   },
   {
     callbacks: {
       authorized: ({ token }) => {
         //If we get a user that isn't logged in, doesn't have a token return false.
         if (!token) {
+          console.log(`[PROXY] Authorization failed - no token`);
           return false;
         }
 
+        console.log(`[PROXY] Authorization passed - token exists`);
         return true;
       },
     },
