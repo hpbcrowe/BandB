@@ -7,7 +7,12 @@ export async function GET(req) {
   await dbConnect();
 
   try {
-    const user = await currentUser();
+    const user = await currentUser(req);
+
+    if (!user?._id) {
+      return NextResponse.json({ err: "Unauthorized" }, { status: 401 });
+    }
+
     const orders = await Order.find({ userId: user._id }).sort({
       createdAt: -1,
     });
