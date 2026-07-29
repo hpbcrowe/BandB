@@ -7,6 +7,43 @@ import queryString from "query-string";
 import mongoose from "mongoose";
 
 /**
+ * Fetch a single order by ID (admin only).
+ *
+ * @param {Request} req - The incoming request object.
+ * @param {Object} context - The context object containing route parameters.
+ * @returns {Promise<NextResponse>} - The response object.
+ */
+
+export async function GET(req, context) {
+  await dbConnect();
+
+  const { orderid: orderId } = await context.params;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return NextResponse.json(
+        { err: `Invalid order ID format: ${orderId}` },
+        { status: 400 },
+      );
+    }
+
+    const order = await Order.findById(orderId).populate(
+      "userId",
+      "name email",
+    );
+
+    if (!order) {
+      return NextResponse.json({ err: "Order not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ order }, { status: 200 });
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    return NextResponse.json({ err: err.message }, { status: 500 });
+  }
+}
+
+/**
  * Update the delivery status of an order.
  *
  * @param {Request} req - The incoming request object.

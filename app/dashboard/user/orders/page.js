@@ -1,13 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import Link from "next/link";
+
+const STATUS_BADGE_CLASS = {
+  "Not Processed": "badge-secondary",
+  Processing: "badge-info",
+  Shipped: "badge-primary",
+  Delivered: "badge-success",
+  Cancelled: "badge-dark",
+  Refunded: "badge-danger",
+};
 
 export default function UserOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
-  const router = useRouter();
 
   const normalizeOrders = (payload) => {
     if (Array.isArray(payload)) return payload;
@@ -65,33 +72,6 @@ export default function UserOrders() {
     }
   };
 
-  const handleCancelOrder = async (orderId) => {
-    try {
-      const response = await fetch(
-        `/api/user/orders/refund?orderId=${orderId}`,
-        {
-          method: "POST",
-        },
-      );
-      // Check if the response is successful
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error("Something went wrong while canceling the order.");
-      } else {
-        toast.success("Order canceled successfully.");
-        fetchOrders(); // Refresh the orders list after cancellation
-      }
-
-      setOrders(normalizeOrders(data));
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-      toast.error(
-        "Something went wrong while canceling the order.Try again later.",
-      );
-    }
-  };
-
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center text-danger vh-100 h1">
@@ -102,7 +82,6 @@ export default function UserOrders() {
 
   return (
     <div className="container mb-5">
-      {/* <pre>{JSON.stringify(orders, null, 4)}</pre> */}
       <div className="row">
         <div className="col">
           <h4 className="text-center">Recent Orders</h4>
@@ -118,98 +97,50 @@ export default function UserOrders() {
           )}
           {orders?.length > 0 &&
             orders.map((order) => (
-              <div key={order._id} className="mb-4 p-4 alert alert-secondary">
-                <table className="table table-striped">
-                  <tbody>
-                    <tr>
-                      <th scope="row">Charge ID:</th>
-                      <td>{order?.chargeId}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Created:</th>
-                      <td>{new Date(order?.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Payment Intent:</th>
-                      <td>{order?.payment_intent}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Receipt:</th>
-                      <td>
-                        <a href={order?.receipt_url} target="_blank">
-                          View Receipt
-                        </a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Refunded:</th>
-                      <td>{order?.refunded ? "Yes" : "No"}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Status:</th>
-                      <td>{order?.status}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Total Charged:</th>
-                      <td>
-                        ${(order?.amount_captured / 100).toFixed(2)}{" "}
-                        {order?.currency?.toUpperCase()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Shopping Address:</th>
-                      <td>
-                        {order?.shipping?.address?.line1} <br />
-                        {order?.shipping?.address?.line2
-                          ? order?.shipping?.address?.line2 + ", "
-                          : ""}
-                        {order?.shipping?.address?.city},{" "}
-                        {order?.shipping?.address?.state}{" "}
-                        {order?.shipping?.address?.postal_code} <br />
-                        {order?.shipping?.address?.country}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row" className="w-25">
-                        Ordered Products:
-                      </th>
-                      <td className="w-75">
-                        {order?.cartItems?.map((product) => (
-                          <div
-                            className="pointer text-primary"
-                            key={product?._id}
-                            onClick={() =>
-                              router.push(`/product/${product?.slug}`)
-                            }
-                          >
-                            {product?.quantity} x {product?.title} $
-                            {product?.price?.toFixed(2)}{" "}
-                            {order?.currency?.toUpperCase()}
-                          </div>
-                        ))}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Delivery Status</th>
-                      <td>
-                        {order?.delivery_status}
-                        {order?.delivery_status === "Not Processed" &&
-                          !order?.refunded && (
-                            <>
-                              <br />
-                              <span
-                                className="text-danger pointer"
-                                onClick={() => handleCancelOrder(order?._id)}
-                              >
-                                {" "}
-                                Cancel Order
-                              </span>
-                            </>
-                          )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div
+                key={order._id}
+                className="mb-3 p-3 alert alert-secondary d-flex justify-content-between align-items-center flex-wrap"
+              >
+                <div>
+                  <div>
+                    <strong>Order ID:</strong> {order?._id}
+                  </div>
+                  <div>
+                    <strong>Charge ID:</strong> {order?.chargeId}
+                  </div>
+                  <div>
+                    <strong>Order Date:</strong>{" "}
+                    {new Date(order?.createdAt).toLocaleDateString()}
+                  </div>
+                  <div>
+                    <strong>Total Charged:</strong> $
+                    {(order?.amount_captured / 100).toFixed(2)}{" "}
+                    {order?.currency?.toUpperCase()}
+                  </div>
+                  <div className="mt-1">
+                    <span
+                      className={`badge d-inline-flex align-items-center justify-content-center ${
+                        STATUS_BADGE_CLASS[order?.delivery_status] ||
+                        "badge-secondary"
+                      }`}
+                      style={{
+                        fontSize: "0.875rem",
+                        padding: "0.25rem 0.5rem",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      {order?.delivery_status}
+                    </span>
+                  </div>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                  <Link
+                    href={`/dashboard/user/orders/${order?._id}`}
+                    className="btn btn-outline-primary btn-sm"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             ))}
         </div>

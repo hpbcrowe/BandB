@@ -1,8 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import Pagination from "@/components/product/Pagination";
+
+const STATUS_BADGE_CLASS = {
+  "Not Processed": "badge-secondary",
+  Processing: "badge-info",
+  Shipped: "badge-primary",
+  Delivered: "badge-success",
+  Cancelled: "badge-dark",
+  Refunded: "badge-danger",
+};
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -13,7 +22,6 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
 
   const [fetchError, setFetchError] = useState("");
-  const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const page = searchParams.get("page") || 1;
@@ -22,6 +30,24 @@ export default function AdminOrders() {
     if (Array.isArray(payload)) return payload;
     if (Array.isArray(payload?.orders)) return payload.orders;
     return [];
+  };
+
+  // Groups orders by their creation date (day granularity), preserving the
+  // order they were received in (assumes orders arrive sorted by date).
+  const groupOrdersByDate = (ordersList) => {
+    const groups = [];
+    const groupsByLabel = {};
+
+    ordersList.forEach((order) => {
+      const label = new Date(order?.createdAt).toLocaleDateString();
+      if (!groupsByLabel[label]) {
+        groupsByLabel[label] = { label, orders: [] };
+        groups.push(groupsByLabel[label]);
+      }
+      groupsByLabel[label].orders.push(order);
+    });
+
+    return groups;
   };
 
   useEffect(() => {
@@ -76,57 +102,6 @@ export default function AdminOrders() {
     }
   };
 
-  const handleStatusChange = async (newStatus, orderId) => {
-    try {
-      console.log(
-        `Frontend: Attempting to update orderId: "${orderId}" (type: ${typeof orderId})`,
-      );
-      console.log(`Frontend: New status: ${newStatus}`);
-
-      if (!orderId) {
-        console.error("No orderId provided!");
-        toast.error("Unable to update order: Order ID missing");
-        return;
-      }
-
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
-        method: "PUT",
-        body: JSON.stringify({ delivery_status: newStatus }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        cache: "no-store",
-      });
-      // Check if the response is successful
-      const data = await response.json();
-
-      if (!response.ok) {
-        const errorMsg =
-          data?.err || `Failed to update order status (${response.status}).`;
-        console.error(
-          "Status update error:",
-          errorMsg,
-          "Status:",
-          response.status,
-        );
-        toast.error(errorMsg);
-      } else {
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order._id === orderId
-              ? { ...order, delivery_status: newStatus }
-              : order,
-          ),
-        );
-        toast.success("Order status updated successfully.");
-      }
-    } catch (err) {
-      console.error("Error updating order status:", err);
-      toast.error("Something went wrong while updating the order status.");
-    }
-  };
-
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center text-danger vh-100 h1">
@@ -137,7 +112,6 @@ export default function AdminOrders() {
 
   return (
     <div className="container mb-5">
-      {/* <pre>{JSON.stringify(orders, null, 4)}</pre> */}
       <div className="row">
         <div className="col">
           <h4 className="text-center">Recent Orders</h4>
@@ -152,122 +126,61 @@ export default function AdminOrders() {
             </div>
           )}
           {orders?.length > 0 &&
-            orders.map((order) => {
-              console.log(`[ADMIN] Rendering order:`, order);
-              return (
-                <div
-                  key={order._id || order.id}
-                  className="mb-4 p-4 alert alert-secondary"
-                >
-                  <table className="table table-striped">
-                    <tbody>
-                      <tr>
-                        <th scope="row">Customer Name</th>
-                        <td>{order?.userId?.name}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Order ID:</th>
-                        <td>{order._id || order.id || "N/A"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Charge ID:</th>
-                        <td>{order?.chargeId}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Created:</th>
-                        <td>
-                          {new Date(order?.createdAt).toLocaleDateString()}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Payment Intent:</th>
-                        <td>{order?.payment_intent}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Receipt:</th>
-                        <td>
-                          <a href={order?.receipt_url} target="_blank">
-                            View Receipt
-                          </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Refunded:</th>
-                        <td>{order?.refunded ? "Yes" : "No"}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Status:</th>
-                        <td>{order?.status}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Total Charged:</th>
-                        <td>
-                          ${(order?.amount_captured / 100).toFixed(2)}{" "}
+            groupOrdersByDate(orders).map((group) => (
+              <div key={group.label} className="mb-4">
+                <h6 className="border-bottom pb-2 mb-3">{group.label}</h6>
+                {group.orders.map((order) => {
+                  const orderId = order._id || order.id;
+                  return (
+                    <div
+                      key={orderId}
+                      className="mb-3 p-3 alert alert-secondary d-flex justify-content-between align-items-center flex-wrap"
+                    >
+                      <div>
+                        <div>
+                          <strong>Customer:</strong>{" "}
+                          {order?.userId?.name || "N/A"}
+                        </div>
+                        <div>
+                          <strong>Order ID:</strong> {orderId}
+                        </div>
+                        <div>
+                          <strong>Charge ID:</strong> {order?.chargeId}
+                        </div>
+                        <div>
+                          <strong>Total Charged:</strong> $
+                          {(order?.amount_captured / 100).toFixed(2)}{" "}
                           {order?.currency?.toUpperCase()}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Shopping Address:</th>
-                        <td>
-                          {order?.shipping?.address?.line1} <br />
-                          {order?.shipping?.address?.line2
-                            ? order?.shipping?.address?.line2 + ", "
-                            : ""}
-                          {order?.shipping?.address?.city},{" "}
-                          {order?.shipping?.address?.state}{" "}
-                          {order?.shipping?.address?.postal_code} <br />
-                          {order?.shipping?.address?.country}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row" className="w-25">
-                          Ordered Products:
-                        </th>
-                        <td className="w-75">
-                          {order?.cartItems?.map((product) => (
-                            <div
-                              className="pointer text-primary"
-                              key={product?._id}
-                              onClick={() =>
-                                router.push(`/product/${product?.slug}`)
-                              }
-                            >
-                              {product?.quantity} x {product?.title} $
-                              {product?.price?.toFixed(2)}{" "}
-                              {order?.currency?.toUpperCase()}
-                            </div>
-                          ))}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Delivery Status</th>
-                        <td>
-                          <select
-                            className="form-control"
-                            onChange={(e) =>
-                              handleStatusChange(
-                                e.target.value,
-                                order._id || order.id,
-                              )
-                            }
-                            value={order?.delivery_status}
-                            disabled={order?.refunded}
+                        </div>
+                        <div className="mt-1">
+                          <span
+                            className={`badge d-inline-flex align-items-center justify-content-center ${
+                              STATUS_BADGE_CLASS[order?.delivery_status] ||
+                              "badge-secondary"
+                            }`}
+                            style={{
+                              fontSize: "0.875rem",
+                              padding: "0.25rem 0.5rem",
+                              lineHeight: "1.5",
+                            }}
                           >
-                            <option value="Not Processed">Not Processed</option>
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            {order?.refunded && (
-                              <option value="Cancelled">Cancelled</option>
-                            )}
-                          </select>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })}
+                            {order?.delivery_status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="d-flex align-items-center gap-3">
+                        <Link
+                          href={`/dashboard/admin/orders/${orderId}`}
+                          className="btn btn-outline-primary btn-sm"
+                        >
+                          View Details
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
         </div>
       </div>
 

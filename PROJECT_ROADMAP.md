@@ -1,12 +1,14 @@
 # BANDB Project Roadmap
 
+#Make sure directory structure follows Next.js recommendations and the structure that has been followed on this project.
+
 ## Near-term feature improvements
 
 1. Order detail page
    - Refactor the orders list (user and admin) into a summary view: order date, total charged, delivery status badge, and a "View Details" link per order.
    - Clicking "View Details" navigates to a dynamic route:
-     - User side: `/dashboard/user/orders/[orderId]`
-     - Admin side: `/dashboard/admin/orders/[orderId]`
+     - User side: `/dashboard/user/orders/[orderid]`
+     - Admin side: `/dashboard/admin/orders/[orderid]`
    - Recent orders (summary) list shows:
      - Order date
      - Total charged
@@ -23,12 +25,12 @@
      - Admin-only: status update control and cancel/refund action
      - User-only: "Cancel Order" action while status is "Not Processed"
    - New API endpoints needed:
-     - `GET /api/user/orders/[orderId]` (ownership-checked)
+     - `GET /api/user/orders/[orderid]` (ownership-checked)
      - `GET` handler added to `app/api/admin/orders/[orderid]/route.js` (alongside existing `PUT`)
    - Make order history easier to understand than a simple list.
 
 2. Order status timeline
-   - Displayed on the order detail page (`[orderId]` route from item 1), positioned below the order date/total header and above the itemized product list.
+   - Displayed on the order detail page (`[orderid]` route from item 1), positioned below the order date/total header and above the itemized product list.
    - Add a progress view for: Placed → Processing → Shipped → Delivered.
      - Completed/current steps shown filled or checked; future steps greyed out.
    - Support canceled and refunded states clearly.
