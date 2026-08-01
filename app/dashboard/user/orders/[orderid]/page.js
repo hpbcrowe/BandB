@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import OrderStatusTimeline from "@/components/order/OrderStatusTimeline";
+import { formatDate } from "@/utils/helpers";
 
 export default function UserOrderDetail() {
   const [order, setOrder] = useState(null);
@@ -110,6 +111,7 @@ export default function UserOrderDetail() {
           <OrderStatusTimeline
             deliveryStatus={order?.delivery_status}
             refunded={order?.refunded}
+            statusHistory={order?.statusHistory}
           />
 
           <div className="p-4 alert alert-secondary">
@@ -125,7 +127,7 @@ export default function UserOrderDetail() {
                 </tr>
                 <tr>
                   <th scope="row">Created:</th>
-                  <td>{new Date(order?.createdAt).toLocaleDateString()}</td>
+                  <td>{formatDate(order?.createdAt)}</td>
                 </tr>
                 <tr>
                   <th scope="row">Payment Intent:</th>

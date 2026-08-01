@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { formatDate } from "@/utils/helpers";
 
 const STATUS_BADGE_CLASS = {
   "Not Processed": "badge-secondary",
@@ -109,8 +110,7 @@ export default function UserOrders() {
                     <strong>Charge ID:</strong> {order?.chargeId}
                   </div>
                   <div>
-                    <strong>Order Date:</strong>{" "}
-                    {new Date(order?.createdAt).toLocaleDateString()}
+                    <strong>Order Date:</strong> {formatDate(order?.createdAt)}
                   </div>
                   <div>
                     <strong>Total Charged:</strong> $

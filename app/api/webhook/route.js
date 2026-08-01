@@ -100,6 +100,7 @@ export async function POST(req) {
           shipping: shippingAddress ? { address: shippingAddress } : undefined,
           userId,
           cartItems: cartItemsWithProductDetails,
+          statusHistory: [{ status: "Not Processed", changedAt: new Date() }],
         };
 
         await Order.create(orderData);

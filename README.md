@@ -72,5 +72,5 @@ https://dashboard.stripe.com/acct_1T0EsiBIpasaOfis/test/workbench/webhooks
 The event will be charge succeeded
 https://dashboard.stripe.com/acct_1T0EsiBIpasaOfis/test/workbench/webhooks/create
 
-###Scoop package manager is installed
+##Scoop package manager is installed
 scoop update stripe

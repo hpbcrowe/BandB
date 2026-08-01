@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import Pagination from "@/components/product/Pagination";
+import { formatDate } from "@/utils/helpers";
 
 const STATUS_BADGE_CLASS = {
   "Not Processed": "badge-secondary",
@@ -39,7 +40,7 @@ export default function AdminOrders() {
     const groupsByLabel = {};
 
     ordersList.forEach((order) => {
-      const label = new Date(order?.createdAt).toLocaleDateString();
+      const label = formatDate(order?.createdAt);
       if (!groupsByLabel[label]) {
         groupsByLabel[label] = { label, orders: [] };
         groups.push(groupsByLabel[label]);

@@ -72,11 +72,26 @@ export async function PUT(req, context) {
       );
     }
 
-    const order = await Order.findByIdAndUpdate(
-      orderId,
-      { delivery_status },
-      { new: true },
-    );
+    const existingOrder = await Order.findById(orderId);
+
+    if (!existingOrder) {
+      console.log(`Order not found: ${orderId}`);
+      return NextResponse.json({ err: "Order not found" }, { status: 404 });
+    }
+
+    const update = { $set: { delivery_status } };
+
+    // Only append a history entry when the status is actually changing, so
+    // repeated saves with the same value don't clutter the timeline.
+    if (existingOrder.delivery_status !== delivery_status) {
+      update.$push = {
+        statusHistory: { status: delivery_status, changedAt: new Date() },
+      };
+    }
+
+    const order = await Order.findByIdAndUpdate(orderId, update, {
+      new: true,
+    });
 
     if (!order) {
       console.log(`Order not found: ${orderId}`);

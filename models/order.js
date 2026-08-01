@@ -53,6 +53,12 @@ const orderSchema = new mongoose.Schema(
         "Delivered",
       ],
     },
+    statusHistory: [
+      {
+        status: { type: String },
+        changedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true },
 );
