@@ -20,8 +20,8 @@ export async function PUT(req) {
   try {
     const updated = await Product.findByIdAndUpdate(
       productId,
-      { $pull: { likes: user._id } },
-      { new: true }
+      { $pull: { likes: { user: user._id } } },
+      { new: true },
     );
     return NextResponse.json(updated, { status: 200 });
   } catch (err) {

@@ -4,12 +4,13 @@ import Category from "@/models/category";
 import Tag from "@/models/tag";
 import User from "@/models/user";
 
-// const likeSchema = new mongoose.Schema(
-//   {
-//     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-//   },
-//   { timestamps: true }
-// );
+const likeSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    likedAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
 
 const ratingSchema = new mongoose.Schema(
   {
@@ -24,7 +25,7 @@ const ratingSchema = new mongoose.Schema(
     },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const productSchema = new mongoose.Schema(
@@ -99,11 +100,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // likes: [likeSchema],
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likes: [likeSchema],
     ratings: [ratingSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 productSchema.plugin(uniqueValidator, { message: " already exists." });

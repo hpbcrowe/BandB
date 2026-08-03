@@ -9,6 +9,9 @@ export default function UserNav() {
       <Link href="/dashboard/user/orders" className="nav-link">
         Orders
       </Link>
+      <Link href="/dashboard/user/wishlist" className="nav-link">
+        Wishlist
+      </Link>
     </nav>
   );
 }

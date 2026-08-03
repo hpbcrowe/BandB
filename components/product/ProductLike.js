@@ -12,7 +12,9 @@ export default function ProductLike({ product }) {
   const pathname = usePathname();
 
   // check if the current user has liked the product
-  const isLiked = likes?.includes(data?.user?._id);
+  const isLiked = likes?.some(
+    (like) => String(like?.user) === String(data?.user?._id),
+  );
 
   /**
    *    * Handle Like Product
@@ -32,7 +34,7 @@ export default function ProductLike({ product }) {
     try {
       if (isLiked) {
         const answer = window.confirm(
-          "You have already liked this product. Do you want to unlike it?"
+          "You have already liked this product. Do you want to unlike it?",
         );
         if (answer) {
           handleUnlike();
@@ -98,7 +100,11 @@ export default function ProductLike({ product }) {
         </>
       ) : (
         <>
-          <span onClick={handleLike}>{likes?.length} people liked</span>
+          <span onClick={handleLike}>
+            {likes?.length === 1
+              ? "1 person liked"
+              : `${likes?.length} people liked`}
+          </span>
         </>
       )}{" "}
     </small>

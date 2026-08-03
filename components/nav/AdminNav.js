@@ -21,6 +21,9 @@ export default function AdminNav() {
       <Link href="/dashboard/admin/orders" className="nav-link">
         Orders
       </Link>
+      <Link href="/dashboard/admin/wishlist" className="nav-link">
+        Wishlisted
+      </Link>
     </nav>
   );
 }

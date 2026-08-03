@@ -18,7 +18,7 @@ export async function GET(req) {
 
   try {
     //  Retrieve products liked by the current user
-    const likedProducts = await Product.find({ likes: user._id });
+    const likedProducts = await Product.find({ "likes.user": user._id });
     return NextResponse.json(likedProducts, { status: 200 });
   } catch (err) {
     return NextResponse.json({ err: err.message }, { status: 500 });
@@ -43,11 +43,20 @@ export async function PUT(req) {
   const { productId } = await req.json();
 
   try {
-    const updated = await Product.findByIdAndUpdate(
-      productId,
-      { $addToSet: { likes: user._id } },
-      { new: true }
-    );
+    // Only add a like entry if this user hasn't already liked the product,
+    // so re-liking doesn't overwrite the original likedAt timestamp.
+    const alreadyLiked = await Product.exists({
+      _id: productId,
+      "likes.user": user._id,
+    });
+
+    if (!alreadyLiked) {
+      await Product.findByIdAndUpdate(productId, {
+        $push: { likes: { user: user._id, likedAt: new Date() } },
+      });
+    }
+
+    const updated = await Product.findById(productId);
     return NextResponse.json(updated, { status: 200 });
   } catch (err) {
     return NextResponse.json({ err: err.message }, { status: 500 });
