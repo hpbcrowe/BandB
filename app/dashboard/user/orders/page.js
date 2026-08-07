@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/product/Pagination";
 import { formatDate } from "@/utils/helpers";
 
 const STATUS_BADGE_CLASS = {
@@ -14,8 +16,13 @@ const STATUS_BADGE_CLASS = {
 
 export default function UserOrders() {
   const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const page = searchParams.get("page") || 1;
 
   const normalizeOrders = (payload) => {
     if (Array.isArray(payload)) return payload;
@@ -23,9 +30,23 @@ export default function UserOrders() {
     return [];
   };
 
+  const groupOrdersByDate = (ordersList) => {
+    const groups = [];
+    const groupsByLabel = {};
+    ordersList.forEach((order) => {
+      const label = formatDate(order?.createdAt);
+      if (!groupsByLabel[label]) {
+        groupsByLabel[label] = { label, orders: [] };
+        groups.push(groupsByLabel[label]);
+      }
+      groupsByLabel[label].orders.push(order);
+    });
+    return groups;
+  };
+
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    fetchOrders(page);
+  }, [page]);
 
   // Function to fetch orders from the API
   // Note: Replace the URL with your actual API endpoint
@@ -34,7 +55,7 @@ export default function UserOrders() {
   // Example API call to fetch orders
   const fetchOrders = async () => {
     try {
-      const response = await fetch("/api/user/orders", {
+      const response = await fetch(`/api/user/orders?page=${page}`, {
         method: "GET",
         credentials: "include",
         cache: "no-store",
@@ -65,6 +86,8 @@ export default function UserOrders() {
       setFetchError("");
 
       setOrders(normalizeOrders(data));
+      setCurrentPage(data.currentPage || 1);
+      setTotalPages(data.totalPages || 1);
     } catch (err) {
       console.error("Error fetching orders:", err);
       setFetchError("Unable to load recent orders. Please try again later.");
@@ -97,54 +120,68 @@ export default function UserOrders() {
             </div>
           )}
           {orders?.length > 0 &&
-            orders.map((order) => (
-              <div
-                key={order._id}
-                className="mb-3 p-3 alert alert-secondary d-flex justify-content-between align-items-center flex-wrap"
-              >
-                <div>
-                  <div>
-                    <strong>Order ID:</strong> {order?._id}
-                  </div>
-                  <div>
-                    <strong>Charge ID:</strong> {order?.chargeId}
-                  </div>
-                  <div>
-                    <strong>Order Date:</strong> {formatDate(order?.createdAt)}
-                  </div>
-                  <div>
-                    <strong>Total Charged:</strong> $
-                    {(order?.amount_captured / 100).toFixed(2)}{" "}
-                    {order?.currency?.toUpperCase()}
-                  </div>
-                  <div className="mt-1">
-                    <span
-                      className={`badge d-inline-flex align-items-center justify-content-center ${
-                        STATUS_BADGE_CLASS[order?.delivery_status] ||
-                        "badge-secondary"
-                      }`}
-                      style={{
-                        fontSize: "0.875rem",
-                        padding: "0.25rem 0.5rem",
-                        lineHeight: "1.5",
-                      }}
+            groupOrdersByDate(orders).map((group) => (
+              <div key={group.label} className="mb-4">
+                <h6 className="border-bottom pb-2 mb-3">{group.label}</h6>
+                {group.orders.map((order) => {
+                  const orderId = order._id || order.id;
+                  return (
+                    <div
+                      key={orderId}
+                      className="mb-3 p-3 alert alert-secondary d-flex justify-content-between align-items-center flex-wrap"
                     >
-                      {order?.delivery_status}
-                    </span>
-                  </div>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                  <Link
-                    href={`/dashboard/user/orders/${order?._id}`}
-                    className="btn btn-outline-primary btn-sm"
-                  >
-                    View Details
-                  </Link>
-                </div>
+                      <div>
+                        <div>
+                          <strong>Order ID:</strong> {orderId}
+                        </div>
+                        <div>
+                          <strong>Charge ID:</strong> {order?.chargeId}
+                        </div>
+                        <div>
+                          <strong>Order Date:</strong>{" "}
+                          {formatDate(order?.createdAt)}
+                        </div>
+                        <div>
+                          <strong>Total Charged:</strong> $
+                          {(order?.amount_captured / 100).toFixed(2)}{" "}
+                          {order?.currency?.toUpperCase()}
+                        </div>
+                        <div className="mt-1">
+                          <span
+                            className={`badge d-inline-flex align-items-center justify-content-center ${
+                              STATUS_BADGE_CLASS[order?.delivery_status] ||
+                              "badge-secondary"
+                            }`}
+                            style={{
+                              fontSize: "0.875rem",
+                              padding: "0.25rem 0.5rem",
+                              lineHeight: "1.5",
+                            }}
+                          >
+                            {order?.delivery_status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="d-flex align-items-center gap-3">
+                        <Link
+                          href={`/dashboard/user/orders/${orderId}?page=${currentPage}`}
+                          className="btn btn-outline-primary btn-sm"
+                        >
+                          View Details
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ))}
         </div>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pathname={pathname}
+      />
     </div>
   );
 }

@@ -171,7 +171,7 @@ export default function AdminOrders() {
                       </div>
                       <div className="d-flex align-items-center gap-3">
                         <Link
-                          href={`/dashboard/admin/orders/${orderId}`}
+                          href={`/dashboard/admin/orders/${orderId}?page=${currentPage}`}
                           className="btn btn-outline-primary btn-sm"
                         >
                           View Details

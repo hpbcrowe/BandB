@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -13,7 +13,14 @@ export default function UserOrderDetail() {
   const [fetchError, setFetchError] = useState("");
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const orderId = params?.orderid;
+  // Preserve the orders-list page the user came from so "Back to Orders"
+  // returns to that same page instead of always page 1.
+  const listPage = searchParams.get("page");
+  const backToOrdersHref = listPage
+    ? `/dashboard/user/orders?page=${listPage}`
+    : "/dashboard/user/orders";
 
   useEffect(() => {
     if (orderId) {
@@ -90,7 +97,7 @@ export default function UserOrderDetail() {
         <div className="alert alert-warning" role="alert">
           {fetchError || "Order not found."}
         </div>
-        <Link href="/dashboard/user/orders" className="btn btn-secondary">
+        <Link href={backToOrdersHref} className="btn btn-secondary">
           Back to Orders
         </Link>
       </div>
@@ -103,7 +110,7 @@ export default function UserOrderDetail() {
         <div className="col-lg-8 offset-lg-2">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4>Order Details</h4>
-            <Link href="/dashboard/user/orders" className="btn btn-secondary">
+            <Link href={backToOrdersHref} className="btn btn-secondary">
               Back to Orders
             </Link>
           </div>
