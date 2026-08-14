@@ -6,6 +6,8 @@ import { currentUser } from "@/utils/currentUser";
 import queryString from "query-string";
 import mongoose from "mongoose";
 
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 /**
  * Fetch a single order by ID (admin only).
  *
@@ -54,16 +56,16 @@ export async function GET(req, context) {
 export async function PUT(req, context) {
   await dbConnect();
 
-  const { delivery_status } = await req.json();
+  const payload = await req.json();
+  const { delivery_status, action } = payload || {};
   const { orderid: orderId } = await context.params;
 
   try {
     console.log(
       `PUT request received with orderId: "${orderId}" (type: ${typeof orderId}, length: ${orderId?.length})`,
     );
-    console.log(`Delivery status: ${delivery_status}`);
+    console.log(`Delivery status: ${delivery_status} | action: ${action}`);
 
-    // Validate orderId is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       console.log(`Invalid order ID format: "${orderId}"`);
       return NextResponse.json(
@@ -79,13 +81,58 @@ export async function PUT(req, context) {
       return NextResponse.json({ err: "Order not found" }, { status: 404 });
     }
 
-    const update = { $set: { delivery_status } };
+    let nextDeliveryStatus = existingOrder.delivery_status;
+    let nextStatus = existingOrder.status;
+    let nextPaymentStatus = existingOrder.payment_status || "paid";
+    let refundedValue = existingOrder.refunded || false;
+    let refundId = existingOrder.refundId || null;
 
-    // Only append a history entry when the status is actually changing, so
-    // repeated saves with the same value don't clutter the timeline.
-    if (existingOrder.delivery_status !== delivery_status) {
+    if (action === "cancel") {
+      nextDeliveryStatus = "Cancelled";
+      nextStatus = "Cancelled";
+      nextPaymentStatus = refundedValue ? "refunded" : "cancelled";
+    } else if (action === "refund") {
+      if (existingOrder.refunded) {
+        return NextResponse.json(
+          { err: "This order has already been refunded." },
+          { status: 400 },
+        );
+      }
+
+      if (existingOrder.payment_intent) {
+        const refund = await stripe.refunds.create({
+          payment_intent: existingOrder.payment_intent,
+          reason: "requested_by_customer",
+        });
+        refundId = refund.id;
+      }
+
+      nextDeliveryStatus = "Refunded";
+      nextStatus = "Refunded";
+      nextPaymentStatus = "refunded";
+      refundedValue = true;
+    } else if (delivery_status) {
+      nextDeliveryStatus = delivery_status;
+      nextStatus = delivery_status;
+      nextPaymentStatus = refundedValue ? "refunded" : nextPaymentStatus;
+    }
+
+    const update = {
+      $set: {
+        delivery_status: nextDeliveryStatus,
+        status: nextStatus,
+        payment_status: nextPaymentStatus,
+        refunded: refundedValue,
+      },
+    };
+
+    if (refundId) {
+      update.$set.refundId = refundId;
+    }
+
+    if (existingOrder.delivery_status !== nextDeliveryStatus) {
       update.$push = {
-        statusHistory: { status: delivery_status, changedAt: new Date() },
+        statusHistory: { status: nextDeliveryStatus, changedAt: new Date() },
       };
     }
 

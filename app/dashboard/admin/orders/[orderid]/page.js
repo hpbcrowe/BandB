@@ -5,12 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import OrderStatusTimeline from "@/components/order/OrderStatusTimeline";
-import { formatDate } from "@/utils/helpers";
+import {
+  formatDate,
+  formatOrderTotal,
+  getPaymentStatusLabel,
+} from "@/utils/helpers";
 
 export default function AdminOrderDetail() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [actionLoading, setActionLoading] = useState("");
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -80,12 +85,101 @@ export default function AdminOrderDetail() {
           data?.err || `Failed to update order status (${response.status}).`;
         toast.error(errorMsg);
       } else {
-        setOrder((prev) => ({ ...prev, delivery_status: newStatus }));
+        setOrder((prev) => ({
+          ...prev,
+          delivery_status: newStatus,
+          payment_status: prev?.payment_status || "paid",
+        }));
         toast.success("Order status updated successfully.");
       }
     } catch (err) {
       console.error("Error updating order status:", err);
       toast.error("Something went wrong while updating the order status.");
+    }
+  };
+
+  const handleAdminRefund = async () => {
+    const chargeAmount = formatOrderTotal(order);
+    const confirmed = window.confirm(
+      `Refund customer payment for order ${order?._id}?\n\nAmount: ${chargeAmount}\nThis will send money back to the customer.`,
+    );
+
+    if (!confirmed) return;
+
+    setActionLoading("refund");
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PUT",
+        body: JSON.stringify({ action: "refund" }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data?.err || "Failed to refund order.");
+        return;
+      }
+
+      setOrder((prev) => ({
+        ...prev,
+        refunded: true,
+        payment_status: "refunded",
+        delivery_status: "Refunded",
+        status: "Refunded",
+      }));
+      toast.success("Order marked as refunded.");
+    } catch (err) {
+      console.error("Error refunding order:", err);
+      toast.error("Something went wrong while refunding the order.");
+    } finally {
+      setActionLoading("");
+    }
+  };
+
+  const handleAdminCancel = async () => {
+    const confirmed = window.confirm(
+      `Cancel order ${order?._id}?\n\nThis stops fulfillment and marks the order as cancelled. This does not refund payment.`,
+    );
+
+    if (!confirmed) return;
+
+    setActionLoading("cancel");
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PUT",
+        body: JSON.stringify({ action: "cancel" }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data?.err || "Failed to cancel order.");
+        return;
+      }
+
+      setOrder((prev) => ({
+        ...prev,
+        refunded: false,
+        payment_status: "cancelled",
+        delivery_status: "Cancelled",
+        status: "Cancelled",
+      }));
+      toast.success("Order cancelled successfully.");
+    } catch (err) {
+      console.error("Error cancelling order:", err);
+      toast.error("Something went wrong while cancelling the order.");
+    } finally {
+      setActionLoading("");
     }
   };
 
@@ -109,6 +203,30 @@ export default function AdminOrderDetail() {
       </div>
     );
   }
+
+  const deliveryStatus = order?.delivery_status;
+  const isRefunded = Boolean(order?.refunded) || deliveryStatus === "Refunded";
+  const isCancelled = deliveryStatus === "Cancelled";
+  const isShippedOrDelivered =
+    deliveryStatus === "Shipped" || deliveryStatus === "Delivered";
+  const disableCancel =
+    isRefunded || isCancelled || isShippedOrDelivered || actionLoading !== "";
+  const disableRefund =
+    isRefunded || !order?.payment_intent || actionLoading !== "";
+
+  const cancelHelp = isRefunded
+    ? "Order already refunded."
+    : isCancelled
+      ? "Order already cancelled."
+      : isShippedOrDelivered
+        ? "Cannot cancel after shipment has started."
+        : "Stops fulfillment. No money returned.";
+
+  const refundHelp = isRefunded
+    ? "Order already refunded."
+    : !order?.payment_intent
+      ? "No payment intent available to refund."
+      : "Returns payment to customer.";
 
   return (
     <div className="container mb-5">
@@ -171,11 +289,12 @@ export default function AdminOrderDetail() {
                   <td>{order?.status}</td>
                 </tr>
                 <tr>
+                  <th scope="row">Payment Status:</th>
+                  <td>{getPaymentStatusLabel(order)}</td>
+                </tr>
+                <tr>
                   <th scope="row">Total Charged:</th>
-                  <td>
-                    ${(order?.amount_captured / 100).toFixed(2)}{" "}
-                    {order?.currency?.toUpperCase()}
-                  </td>
+                  <td>{formatOrderTotal(order)}</td>
                 </tr>
                 <tr>
                   <th scope="row">Shipping Address:</th>
@@ -193,56 +312,122 @@ export default function AdminOrderDetail() {
                 <tr>
                   <th scope="row">Delivery Status</th>
                   <td>
-                    <select
-                      className="form-control"
-                      onChange={(e) => handleStatusChange(e.target.value)}
-                      value={order?.delivery_status}
-                      disabled={order?.refunded}
-                    >
-                      <option value="Not Processed">Not Processed</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      {order?.refunded && (
-                        <option value="Cancelled">Cancelled</option>
-                      )}
-                    </select>
+                    <div className="d-flex flex-column gap-2">
+                      <select
+                        className="form-control"
+                        onChange={(e) => handleStatusChange(e.target.value)}
+                        value={order?.delivery_status}
+                        disabled={order?.refunded || actionLoading !== ""}
+                      >
+                        <option value="Not Processed">Not Processed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        {order?.refunded && (
+                          <option value="Cancelled">Cancelled</option>
+                        )}
+                      </select>
+                      <div className="d-flex gap-2 flex-wrap">
+                        <span
+                          className="d-inline-block"
+                          title={cancelHelp}
+                          style={{ cursor: "help" }}
+                        >
+                          <button
+                            type="button"
+                            className="btn btn-warning btn-sm fw-semibold text-dark"
+                            onClick={handleAdminCancel}
+                            disabled={disableCancel}
+                            aria-label={`Cancel order action. ${cancelHelp}`}
+                            style={{ color: "#1f2328" }}
+                          >
+                            {actionLoading === "cancel"
+                              ? "Cancelling Order..."
+                              : "Cancel Order (Stop Fulfillment)"}
+                          </button>
+                        </span>
+                        <span
+                          className="d-inline-block"
+                          title={refundHelp}
+                          style={{ cursor: "help" }}
+                        >
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-sm fw-bold"
+                            onClick={handleAdminRefund}
+                            disabled={disableRefund}
+                            aria-label={`Refund customer payment action. ${refundHelp}`}
+                          >
+                            {actionLoading === "refund"
+                              ? "Refunding Customer..."
+                              : "Refund Customer Payment"}
+                          </button>
+                        </span>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
 
             <h5 className="mt-4">Ordered Products</h5>
-            {order?.cartItems?.map((product) => (
-              <div
-                key={product?._id}
-                className="d-flex align-items-center mb-3 pb-3 border-bottom"
-              >
-                <div
-                  style={{ width: "80px", height: "80px", overflow: "hidden" }}
-                  className="me-3 flex-shrink-0"
-                >
-                  <Image
-                    src={product?.image || "/images/default.jpg"}
-                    alt={product?.title}
-                    width={80}
-                    height={80}
-                    style={{
-                      objectFit: "cover",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  />
-                </div>
-                <div
-                  className="pointer text-primary"
-                  onClick={() => router.push(`/product/${product?.slug}`)}
-                >
-                  {product?.quantity} x {product?.title} $
-                  {product?.price?.toFixed(2)} {order?.currency?.toUpperCase()}
-                </div>
-              </div>
-            ))}
+            <div className="table-responsive">
+              <table className="table table-sm table-bordered align-middle">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Line Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order?.cartItems?.map((product) => {
+                    const quantity = Number(product?.quantity || 0);
+                    const price = Number(product?.price || 0);
+                    const lineTotal = quantity * price;
+
+                    return (
+                      <tr key={product?._id}>
+                        <td>
+                          <div className="d-flex align-items-center gap-3">
+                            <div
+                              style={{
+                                width: "48px",
+                                height: "48px",
+                                overflow: "hidden",
+                              }}
+                              className="flex-shrink-0"
+                            >
+                              <Image
+                                src={product?.image || "/images/default.jpg"}
+                                alt={product?.title}
+                                width={48}
+                                height={48}
+                                style={{
+                                  objectFit: "cover",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            </div>
+                            <span>{product?.title}</span>
+                          </div>
+                        </td>
+                        <td>{quantity}</td>
+                        <td>
+                          ${price.toFixed(2)} {order?.currency?.toUpperCase()}
+                        </td>
+                        <td>
+                          ${lineTotal.toFixed(2)}{" "}
+                          {order?.currency?.toUpperCase()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

@@ -28,6 +28,19 @@
      - `GET /api/user/orders/[orderid]` (ownership-checked)
      - `GET` handler added to `app/api/admin/orders/[orderid]/route.js` (alongside existing `PUT`)
    - Make order history easier to understand than a simple list.
+   - Remaining implementation plan for the four gaps still to finish:
+     1. Add the order date to the admin summary list.
+        - Update the admin orders card UI in `app/dashboard/admin/orders/page.js` to render `createdAt` using the existing `formatDate` helper.
+        - No backend change is required if the order payload already includes the date.
+     2. Add an admin-side cancel/refund action on the order detail page.
+        - Extend `app/dashboard/admin/orders/[orderid]/page.js` with a secondary action button or dropdown beside the status selector.
+        - Reuse or extend the refund/cancel flow in `app/api/user/orders/refund/route.js` or add a dedicated admin endpoint to mark an order as refunded/cancelled and update the DB state.
+     3. Show line-item totals for each product in the order detail view.
+        - Update both detail pages to render a small table or list with columns for quantity, title, price, and line total.
+        - Compute each line total as `quantity × price` and keep the existing thumbnail/image display.
+     4. Add an explicit payment status field to the detail view.
+        - Introduce a dedicated payment-status row in the user/admin detail pages so it is clear whether the payment is paid, pending, refunded, or otherwise impacted.
+        - If the current order schema does not already support it, add a `payment_status` field to `models/order.js` and populate it from the Stripe webhook and order update flows.
 
 2. Order status timeline
    - Displayed on the order detail page (`[orderid]` route from item 1), positioned below the order date/total header and above the itemized product list.

@@ -84,6 +84,36 @@ export async function POST(req) {
         }));
 
         //create order in the database with the payment intent and charge details, shipping info, userId, and cartItems
+        const paymentStatus = (() => {
+          const normalized = String(paymentIntent.status || "").toLowerCase();
+
+          if (paymentIntent.amount_refunded > 0 || charge?.refunded) {
+            return "refunded";
+          }
+
+          if (
+            normalized === "requires_action" ||
+            normalized === "processing" ||
+            normalized === "requires_capture"
+          ) {
+            return "pending";
+          }
+
+          if (normalized === "canceled" || normalized === "cancelled") {
+            return "cancelled";
+          }
+
+          if (normalized === "failed") {
+            return "failed";
+          }
+
+          if (normalized === "succeeded") {
+            return "paid";
+          }
+
+          return "unknown";
+        })();
+
         const orderData = {
           chargeId:
             charge?.id ||
@@ -94,6 +124,7 @@ export async function POST(req) {
           receipt_url: charge?.receipt_url || "",
           refunded: paymentIntent.amount_refunded > 0,
           status: paymentIntent.status,
+          payment_status: paymentStatus,
           amount_captured:
             charge?.amount_captured ?? paymentIntent.amount_received ?? 0,
           currency: paymentIntent.currency,

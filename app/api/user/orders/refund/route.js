@@ -40,15 +40,22 @@ export async function POST(req) {
     for (const cartItem of order.cartItems) {
       const product = await Product.findById(cartItem._id);
       if (product) {
-        product.quantity += cartItem.quantity;
+        product.stock =
+          Number(product.stock || 0) + Number(cartItem.quantity || 0);
         await product.save();
       }
     }
     // update the order status IN DATABASE to "Refunded"
     order.status = "Refunded";
+    order.payment_status = "refunded";
     order.refunded = true;
     order.delivery_status = "Cancelled";
     order.refundIde = refund.id;
+    order.statusHistory = [
+      ...(Array.isArray(order.statusHistory) ? order.statusHistory : []),
+      { status: "Cancelled", changedAt: new Date() },
+      { status: "Refunded", changedAt: new Date() },
+    ];
     await order.save();
 
     return NextResponse.json(

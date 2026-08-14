@@ -24,6 +24,11 @@ const orderSchema = new mongoose.Schema(
     receipt_url: String,
     refunded: Boolean,
     status: String,
+    payment_status: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "paid", "failed", "refunded", "cancelled", "unknown"],
+    },
     amount_captured: Number,
     currency: String,
     shipping: {

@@ -43,3 +43,57 @@ export function formatDateTime(date) {
     timeZone: "UTC",
   });
 }
+
+export function formatOrderTotal(order) {
+  const rawAmount = Number(
+    order?.amount_captured ?? order?.amount_received ?? order?.total ?? NaN,
+  );
+
+  if (!Number.isFinite(rawAmount)) {
+    return "N/A";
+  }
+
+  const currency = (order?.currency || "usd").toUpperCase();
+  return `$${(rawAmount / 100).toFixed(2)} ${currency}`;
+}
+
+export function getPaymentStatusLabel(order) {
+  const paymentStatus = String(order?.payment_status || order?.status || "")
+    .trim()
+    .toLowerCase();
+
+  if (order?.refunded || paymentStatus === "refunded") {
+    return "Refunded";
+  }
+
+  if (
+    order?.delivery_status === "Cancelled" ||
+    paymentStatus === "cancelled" ||
+    paymentStatus === "canceled"
+  ) {
+    return "Cancelled";
+  }
+
+  if (
+    paymentStatus === "pending" ||
+    paymentStatus === "processing" ||
+    paymentStatus === "requires_action" ||
+    paymentStatus === "requires_capture"
+  ) {
+    return "Pending";
+  }
+
+  if (paymentStatus === "failed") {
+    return "Failed";
+  }
+
+  if (
+    paymentStatus === "succeeded" ||
+    paymentStatus === "paid" ||
+    Number(order?.amount_captured ?? order?.amount_received ?? 0) > 0
+  ) {
+    return "Paid";
+  }
+
+  return "Unknown";
+}

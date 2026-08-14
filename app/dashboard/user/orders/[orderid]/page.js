@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import OrderStatusTimeline from "@/components/order/OrderStatusTimeline";
-import { formatDate } from "@/utils/helpers";
+import {
+  formatDate,
+  formatOrderTotal,
+  getPaymentStatusLabel,
+} from "@/utils/helpers";
 
 export default function UserOrderDetail() {
   const [order, setOrder] = useState(null);
@@ -161,11 +165,12 @@ export default function UserOrderDetail() {
                   <td>{order?.status}</td>
                 </tr>
                 <tr>
+                  <th scope="row">Payment Status:</th>
+                  <td>{getPaymentStatusLabel(order)}</td>
+                </tr>
+                <tr>
                   <th scope="row">Total Charged:</th>
-                  <td>
-                    ${(order?.amount_captured / 100).toFixed(2)}{" "}
-                    {order?.currency?.toUpperCase()}
-                  </td>
+                  <td>{formatOrderTotal(order)}</td>
                 </tr>
                 <tr>
                   <th scope="row">Shipping Address:</th>
@@ -202,36 +207,70 @@ export default function UserOrderDetail() {
             </table>
 
             <h5 className="mt-4">Ordered Products</h5>
-            {order?.cartItems?.map((product) => (
-              <div
-                key={product?._id}
-                className="d-flex align-items-center mb-3 pb-3 border-bottom"
-              >
-                <div
-                  style={{ width: "80px", height: "80px", overflow: "hidden" }}
-                  className="me-3 flex-shrink-0"
-                >
-                  <Image
-                    src={product?.image || "/images/default.jpg"}
-                    alt={product?.title}
-                    width={80}
-                    height={80}
-                    style={{
-                      objectFit: "cover",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  />
-                </div>
-                <div
-                  className="pointer text-primary"
-                  onClick={() => router.push(`/product/${product?.slug}`)}
-                >
-                  {product?.quantity} x {product?.title} $
-                  {product?.price?.toFixed(2)} {order?.currency?.toUpperCase()}
-                </div>
-              </div>
-            ))}
+            <div className="table-responsive">
+              <table className="table table-sm table-bordered align-middle">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Line Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order?.cartItems?.map((product) => {
+                    const quantity = Number(product?.quantity || 0);
+                    const price = Number(product?.price || 0);
+                    const lineTotal = quantity * price;
+
+                    return (
+                      <tr key={product?._id}>
+                        <td>
+                          <div className="d-flex align-items-center gap-3">
+                            <div
+                              style={{
+                                width: "48px",
+                                height: "48px",
+                                overflow: "hidden",
+                              }}
+                              className="flex-shrink-0"
+                            >
+                              <Image
+                                src={product?.image || "/images/default.jpg"}
+                                alt={product?.title}
+                                width={48}
+                                height={48}
+                                style={{
+                                  objectFit: "cover",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            </div>
+                            <span
+                              className="pointer text-primary"
+                              onClick={() =>
+                                router.push(`/product/${product?.slug}`)
+                              }
+                            >
+                              {product?.title}
+                            </span>
+                          </div>
+                        </td>
+                        <td>{quantity}</td>
+                        <td>
+                          ${price.toFixed(2)} {order?.currency?.toUpperCase()}
+                        </td>
+                        <td>
+                          ${lineTotal.toFixed(2)}{" "}
+                          {order?.currency?.toUpperCase()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

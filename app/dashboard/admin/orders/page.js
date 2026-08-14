@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import Pagination from "@/components/product/Pagination";
-import { formatDate } from "@/utils/helpers";
+import { formatDate, formatOrderTotal } from "@/utils/helpers";
 
 const STATUS_BADGE_CLASS = {
   "Not Processed": "badge-secondary",
@@ -149,9 +149,12 @@ export default function AdminOrders() {
                           <strong>Charge ID:</strong> {order?.chargeId}
                         </div>
                         <div>
-                          <strong>Total Charged:</strong> $
-                          {(order?.amount_captured / 100).toFixed(2)}{" "}
-                          {order?.currency?.toUpperCase()}
+                          <strong>Order Date:</strong>{" "}
+                          {formatDate(order?.createdAt)}
+                        </div>
+                        <div>
+                          <strong>Total Charged:</strong>{" "}
+                          {formatOrderTotal(order)}
                         </div>
                         <div className="mt-1">
                           <span
